@@ -132,7 +132,7 @@
 
             <div class="d-flex gap-2">
               <button class="btn btn-cta-2" type="button" id="btn-analizar-exp">Analizar</button>
-<div id="resultado"></div>
+              <div id="resultado"></div>
               <a class="btn btn-outline-light" href="{{ url_for('main.menu') }}">Volver al Menú</a>
             </div>
 
@@ -277,7 +277,7 @@
   const blocks = { rf: document.getElementById('hp_rf'), dt: document.getElementById('hp_dt'), lr: document.getElementById('hp_lr') };
   function syncHP(){
     const m = sel.value;
-    Object.keys(blocks).forEach(k => blocks[k].classList.toggle('d-none', k !== m));
+    Object.keys(blocks).forEach(function(k){ blocks[k].classList.toggle('d-none', k !== m); });
   }
   sel.addEventListener('change', syncHP);
   syncHP();
@@ -294,42 +294,54 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 </script>
 
+{# --- Inyectamos los campos como JSON puro y los leemos desde JS --- #}
+<script type="application/json" id="fields-json">
+{{ fields | map(attribute=0) | list | tojson }}
+</script>
+
 <script>
 (function(){
-  const form = document.getElementById('frm-analizar-exp');
-  const btn = document.getElementById('btn-analizar-exp');
-  const out = document.getElementById('resultado');
+  var form = document.getElementById('frm-analizar-exp');
+  var btn  = document.getElementById('btn-analizar-exp');
+  var out  = document.getElementById('resultado');
   if (!form || !btn || !out) return;
 
-  const FIELDS = [
-    {% for key, label, unit in fields %}"{{ key }}",{% endfor %}
-  ];
+  // Parse seguro del JSON con las keys
+  var FIELDS;
+  try {
+    FIELDS = JSON.parse(document.getElementById('fields-json').textContent || '[]');
+  } catch(e) {
+    FIELDS = [];
+  }
 
-  btn.addEventListener('click', async function(){
-    const fd = new FormData(form);
-    const criterios = FIELDS.map(k => ({
-      key: k,
-      label: k,
-      mag: (fd.get(k + "_mag") || "").trim(),
-      unit: (fd.get(k + "_unit") || "").trim(),
-    }));
-    const modelo = (fd.get('modelo') || 'rf'); // rf/dt/lr
+  btn.addEventListener('click', function(){
+    var fd = new FormData(form);
+    var criterios = FIELDS.map(function(k){
+      return {
+        key: k,
+        label: k,
+        mag: (fd.get(k + "_mag")  || "").trim(),
+        unit: (fd.get(k + "_unit") || "").trim()
+      };
+    });
+    var modelo = (fd.get('modelo') || 'rf');
 
-    try {
-      const res = await fetch("{{ url_for('main.api_analizar') }}", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ modelo, criterios })
-      });
-      const data = await res.json();
-      if (data.ok) {
+    fetch("{{ url_for('main.api_analizar') }}", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ modelo: modelo, criterios: criterios })
+    })
+    .then(function(res){ return res.json(); })
+    .then(function(data){
+      if (data && data.ok) {
         out.innerHTML = data.html;
       } else {
-        out.innerHTML = `<div class="alert alert-danger">${data.error || 'Error en el análisis'}</div>`;
+        out.innerHTML = '<div class="alert alert-danger">' + ((data && data.error) || 'Error en el análisis') + '</div>';
       }
-    } catch (err) {
-      out.innerHTML = `<div class="alert alert-danger">No se pudo conectar con el servidor.</div>`;
-    }
+    })
+    .catch(function(){
+      out.innerHTML = '<div class="alert alert-danger">No se pudo conectar con el servidor.</div>';
+    });
   });
 })();
 </script>

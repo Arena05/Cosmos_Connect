@@ -9,19 +9,19 @@ main_bp = Blueprint("main", __name__)
 
 # ---- Campos visibles en ambas vistas (Aprendiz/Expertos)
 FIELDS = [
-    ("orbital_period_d", "Período orbital", "días"),
-    ("transit_duration_h", "Duración del tránsito", "horas"),
-    ("transit_depth_ppm", "Profundidad del tránsito", "ppm"),
-    ("t0_bjd", "Época del tránsito (BJD)", "BJD"),
-    ("pl_radius_re", "Radio del planeta", "R⊕"),
-    ("insol_flux_fe", "Flujo de insolación", "F⊕"),
-    ("eq_temp_k", "Temperatura de equilibrio", "K"),
-    ("ra_deg", "Ascensión recta", "grados"),
-    ("dec_deg", "Declinación", "grados"),
-    ("st_teff_k", "T. efectiva estelar", "K"),
-    ("st_logg_cms2", "log g (superficie)", "log10(cm s⁻²)"),
-    ("st_radius_rsun", "Radio estelar", "R⊙"),
+    ("ra", "Ascensión recta", "grados"),
+    ("dec", "Declinación", "grados"),
+    ("period", "Período orbital", "días"),
+    ("duration", "Duración del tránsito", "horas"),
+    ("depth", "Profundidad del tránsito", "ppm"),
+    ("planet_radius", "Radio del planeta", "R⊕"),
+    ("insolation", "Flujo de insolación", "F⊕"),
+    ("equilibrium_temp", "Temperatura de equilibrio", "K"),
+    ("stellar_teff", "T. efectiva estelar", "K"),
+    ("stellar_logg", "log g (superficie)", "log10(cm s⁻²)"),
+    ("stellar_radius", "Radio estelar", "R⊙"),
 ]
+
 
 # ---- Helpers ---------------------------------------------------------------
 

@@ -26,19 +26,19 @@ MODELS_DIR.mkdir(exist_ok=True)
 
 # === Esquema de features consistent con UI (FIELDS en routes.py) ============
 FEATURES = [
-    "orbital_period_d",
-    "transit_duration_h",
-    "transit_depth_ppm",
-    "t0_bjd",
-    "pl_radius_re",
-    "insol_flux_fe",
-    "eq_temp_k",
-    "ra_deg",
-    "dec_deg",
-    "st_teff_k",
-    "st_logg_cms2",
-    "st_radius_rsun",
+    "ra",
+    "dec",
+    "period",
+    "duration",
+    "depth",
+    "planet_radius",
+    "insolation",
+    "equilibrium_temp",
+    "stellar_teff",
+    "stellar_logg",
+    "stellar_radius",
 ]
+
 
 LABEL_COL = "label"  # texto: 'CONFIRMED' | 'FALSE POSITIVE' | 'CANDIDATE' | etc.
 
