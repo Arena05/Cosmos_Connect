@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="auth-hero">
+  <div class="container">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-6">
+        <div class="glass p-4 p-lg-5 mb-3 mb-lg-0">
+          <h1 class="display-4 fw-bold lh-1 mb-3">Crea tu cuenta</h1>
+          <p class="lead text-light-70">Únete a la misión.</p>
+          <a class="btn btn-outline-light" href="{{ url_for('main.menu') }}">← Volver al Menú</a>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="glass form-card p-4 p-lg-5">
+          <h2 class="h4 mb-3">Registrarse</h2>
+          <form method="POST" novalidate>
+            {{ form.hidden_tag() }}
+            <div class="mb-3">
+              {{ form.name.label(class="form-label") }}
+              {{ form.name(class="form-control form-control-lg", placeholder="Tu nombre") }}
+              {% for e in form.name.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+            </div>
+            <div class="mb-3">
+              {{ form.email.label(class="form-label") }}
+              {{ form.email(class="form-control form-control-lg", placeholder="correo@dominio.com") }}
+              {% for e in form.email.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+            </div>
+            <div class="mb-3">
+              {{ form.password.label(class="form-label") }}
+              {{ form.password(class="form-control form-control-lg", placeholder="••••••••") }}
+              {% for e in form.password.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+            </div>
+            <div class="mb-3">
+              {{ form.confirm.label(class="form-label") }}
+              {{ form.confirm(class="form-control form-control-lg", placeholder="Repite tu contraseña") }}
+              {% for e in form.confirm.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+            </div>
+            {{ form.submit(class="btn btn-primary btn-lg w-100") }}
+          </form>
+          <p class="small mt-3 mb-0 text-center text-light-70">¿Ya tienes cuenta?
+            <a href="{{ url_for('auth.login') }}" class="link-light">Inicia sesión</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

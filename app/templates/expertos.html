@@ -1,0 +1,337 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="dashboard-hero">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+      <h4 class="mb-0">Modo Expertos</h4>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="switchMode" checked>
+        <label class="form-check-label" for="switchMode">Ir a Aprendiz</label>
+      </div>
+    </div>
+
+    <!-- Un solo form que envía modelo + HP + criterios + "comparar" -->
+    <form method="POST" id="frm-analizar-exp">
+      <div class="row g-3">
+        <!-- Modelos + Hiperparámetros -->
+        <div class="col-lg-5">
+          <div class="cardx p-3">
+            <h5 class="mb-3">Modelo e Hiperparámetros</h5>
+
+            <label class="form-label small">Modelo</label>
+            <select name="modelo" id="modelo" class="form-select form-select-sm mb-3">
+              <option value="rf">Random Forest</option>
+              <option value="dt">Decision Tree</option>
+              <option value="lr">Logistic Regression</option>
+            </select>
+
+            <!-- RF -->
+            <div id="hp_rf">
+              <div class="row g-2">
+                <div class="col-6">
+                  <label class="form-label small">n_estimators</label>
+                  <select name="rf_n_estimators" class="form-select form-select-sm">
+                    {% for v in [400,800,1200,1600] %}<option value="{{v}}">{{v}}</option>{% endfor %}
+                  </select>
+                </div>
+                <div class="col-6">
+                  <label class="form-label small">max_depth</label>
+                  <select name="rf_max_depth" class="form-select form-select-sm">
+                    {% for v in [10,20,30,40] %}<option value="{{v}}">{{v}}</option>{% endfor %}
+                  </select>
+                </div>
+                <div class="col-6">
+                  <label class="form-label small">min_samples_split</label>
+                  <select name="rf_min_samples_split" class="form-select form-select-sm">
+                    {% for v in [5,10,15,20] %}<option value="{{v}}">{{v}}</option>{% endfor %}
+                  </select>
+                </div>
+                <div class="col-6">
+                  <label class="form-label small">random_state</label>
+                  <select name="rf_random_state" class="form-select form-select-sm">
+                    {% for v in [10,20,30,42] %}<option value="{{v}}">{{v}}</option>{% endfor %}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- DT -->
+            <div id="hp_dt" class="d-none">
+              <div class="row g-2">
+                <div class="col-6">
+                  <label class="form-label small">max_depth</label>
+                  <select name="dt_max_depth" class="form-select form-select-sm">
+                    {% for v in [5,8,11,14] %}<option value="{{v}}">{{v}}</option>{% endfor %}
+                  </select>
+                </div>
+                <div class="col-6">
+                  <label class="form-label small">min_samples_split</label>
+                  <select name="dt_min_samples_split" class="form-select form-select-sm">
+                    {% for v in [5,10,15,20] %}<option value="{{v}}">{{v}}</option>{% endfor %}
+                  </select>
+                </div>
+                <div class="col-6">
+                  <label class="form-label small">min_samples_leaf</label>
+                  <select name="dt_min_samples_leaf" class="form-select form-select-sm">
+                    {% for v in [2,4,6,8] %}<option value="{{v}}">{{v}}</option>{% endfor %}
+                  </select>
+                </div>
+                <div class="col-6">
+                  <label class="form-label small">random_state</label>
+                  <select name="dt_random_state" class="form-select form-select-sm">
+                    {% for v in [10,20,30,42] %}<option value="{{v}}">{{v}}</option>{% endfor %}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- LR -->
+            <div id="hp_lr" class="d-none">
+              <div class="row g-2">
+                <div class="col-6">
+                  <label class="form-label small">C</label>
+                  <select name="lr_C" class="form-select form-select-sm">
+                    {% for v in [0.01,0.1,1,10,100] %}<option value="{{v}}">{{v}}</option>{% endfor %}
+                  </select>
+                </div>
+                <div class="col-6">
+                  <label class="form-label small">max_iter</label>
+                  <select name="lr_max_iter" class="form-select form-select-sm">
+                    {% for v in [100,200,400,600] %}<option value="{{v}}">{{v}}</option>{% endfor %}
+                  </select>
+                </div>
+                <div class="col-6">
+                  <label class="form-label small">random_state</label>
+                  <select name="lr_random_state" class="form-select form-select-sm">
+                    {% for v in [10,20,30,42] %}<option value="{{v}}">{{v}}</option>{% endfor %}
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Criterios -->
+        <div class="col-lg-7">
+          <div class="cardx p-3">
+            <h5 class="mb-3">Criterios para el análisis</h5>
+            <div class="table-responsive">
+              <table class="table table-dark table-sm align-middle criteria-table">
+                <thead><tr><th>Etiqueta</th><th>Magnitud</th><th>Unidades</th></tr></thead>
+                <tbody>
+                  {% for key, label, unit in fields %}
+                  <tr>
+                    <td class="w-50">{{ label }}</td>
+                    <td class="w-25"><input name="{{ key }}_mag" type="text" class="form-control form-control-sm" value="{{ (criterios[loop.index0].mag) if criterios else '' }}" placeholder="ej: 365.25"></td>
+                    <td class="w-25"><input name="{{ key }}_unit" type="text" class="form-control form-control-sm" value="{{ unit }}"></td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button class="btn btn-cta-2" type="button" id="btn-analizar-exp">Analizar</button>
+<div id="resultado"></div>
+              <a class="btn btn-outline-light" href="{{ url_for('main.menu') }}">Volver al Menú</a>
+            </div>
+
+            <div class="form-check mt-2">
+              <input class="form-check-input" type="checkbox" name="comparar" id="comparar">
+              <label class="form-check-label" for="comparar">Comparar (A/B/C)</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    {% if resultados %}
+    <div class="row g-3 mt-1">
+      <div class="col-lg-7">
+        <div class="cardx p-3">
+          <h5 class="mb-2">Criterios usados</h5>
+          <div class="table-responsive">
+            <table class="table table-dark table-sm align-middle">
+              <thead><tr><th>Etiqueta</th><th>Magnitud</th><th>Unidades</th></tr></thead>
+              <tbody>
+                {% for r in resultados.criterios %}
+                  {% if r.mag %}
+                  <tr><td>{{ r.label }}</td><td>{{ r.mag }}</td><td>{{ r.unit }}</td></tr>
+                  {% endif %}
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-5">
+        <div class="cardx p-3">
+          <h5 class="mb-2">Resultado de Predicción</h5>
+          <div class="small text-light-70 mb-1">{{ resultados.modelo }}</div>
+          <div class="display-6">{{ (resultados.pred.prob * 100)|round(1) }}%</div>
+          <div class="mb-2">{{ resultados.pred.clase }}</div>
+
+          <h6 class="mt-3">Hiperparámetros</h6>
+          <ul class="small mb-0">
+            {% for k,v in resultados.params.items() %}
+              <li>{{ k }}: <strong>{{ v }}</strong></li>
+            {% endfor %}
+          </ul>
+
+          <form action="{{ url_for('main.guardar_experimento') }}" method="post" class="mt-2">
+            <input type="hidden" name="model_name" value="{{ resultados.modelo }}">
+            <input type="hidden" name="params_json" value='{{ resultados.params|tojson }}'>
+            <input type="hidden" name="criteria_json" value='{{ resultados.criterios|tojson }}'>
+            <input type="hidden" name="prob" value="{{ resultados.pred.prob }}">
+            <input type="hidden" name="predicted_class" value="{{ resultados.pred.clase }}">
+            <button type="submit" class="btn btn-primary w-100">Guardar experimento</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if runs_list and runs_list|length > 0 %}
+    <div class="row g-3 mt-1">
+      <div class="col-12">
+        <div class="cardx p-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-2">Modelos analizados en esta sesión</h5>
+            <form action="{{ url_for('main.expertos_limpiar') }}" method="post">
+              <button class="btn btn-outline-light btn-sm">Limpiar historial</button>
+            </form>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-dark table-sm align-middle">
+              <thead>
+                <tr>
+                  <th>MODELO</th>
+                  <th>Prob.</th>
+                  <th>F1</th>
+                  <th>Recall</th>
+                  <th>Accuracy</th>
+                  <th>Tiempo</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for r in runs_list %}
+                <tr>
+                  <td>{{ r.name }}</td>
+                  <td>{{ (r.prob*100)|round(1) }}%</td>
+                  <td>{{ '%.3f'|format(r.metrics.f1) }}</td>
+                  <td>{{ '%.3f'|format(r.metrics.recall) }}</td>
+                  <td>{{ '%.3f'|format(r.metrics.acc) }}</td>
+                  <td>{{ r.metrics.time }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <p class="small text-light-70 mb-0">
+            Marca <strong>Comparar (A/B/C)</strong> y vuelve a <strong>Analizar</strong> para ver solo la tabla comparativa con los modelos ya ejecutados.
+          </p>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if resultados_multi %}
+    <div class="row g-3 mt-1">
+      <div class="col-12">
+        <div class="cardx p-3">
+          <h5 class="mb-2">Resultados de Modelos (Comparativa)</h5>
+          <div class="table-responsive">
+            <table class="table table-dark table-sm align-middle">
+              <thead>
+                <tr>
+                  <th>MODELO</th>
+                  <th>F1-SCORE</th>
+                  <th>RECALL</th>
+                  <th>ACCURACY</th>
+                  <th>TIEMPO</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for r in resultados_multi %}
+                <tr>
+                  <td>{{ r.name }}</td>
+                  <td>{{ '%.3f'|format(r.metrics.f1) }}</td>
+                  <td>{{ '%.3f'|format(r.metrics.recall) }}</td>
+                  <td>{{ '%.3f'|format(r.metrics.acc) }}</td>
+                  <td>{{ r.metrics.time }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<script>
+  const sel = document.getElementById('modelo');
+  const blocks = { rf: document.getElementById('hp_rf'), dt: document.getElementById('hp_dt'), lr: document.getElementById('hp_lr') };
+  function syncHP(){
+    const m = sel.value;
+    Object.keys(blocks).forEach(k => blocks[k].classList.toggle('d-none', k !== m));
+  }
+  sel.addEventListener('change', syncHP);
+  syncHP();
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  const sw = document.getElementById('switchMode');
+  if (!sw) return;
+  sw.checked = true;
+  sw.addEventListener('change', function(e){
+    e.preventDefault();
+    window.location.href = "{{ url_for('main.aprendiz') }}";
+  });
+});
+</script>
+
+<script>
+(function(){
+  const form = document.getElementById('frm-analizar-exp');
+  const btn = document.getElementById('btn-analizar-exp');
+  const out = document.getElementById('resultado');
+  if (!form || !btn || !out) return;
+
+  const FIELDS = [
+    {% for key, label, unit in fields %}"{{ key }}",{% endfor %}
+  ];
+
+  btn.addEventListener('click', async function(){
+    const fd = new FormData(form);
+    const criterios = FIELDS.map(k => ({
+      key: k,
+      label: k,
+      mag: (fd.get(k + "_mag") || "").trim(),
+      unit: (fd.get(k + "_unit") || "").trim(),
+    }));
+    const modelo = (fd.get('modelo') || 'rf'); // rf/dt/lr
+
+    try {
+      const res = await fetch("{{ url_for('main.api_analizar') }}", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ modelo, criterios })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        out.innerHTML = data.html;
+      } else {
+        out.innerHTML = `<div class="alert alert-danger">${data.error || 'Error en el análisis'}</div>`;
+      }
+    } catch (err) {
+      out.innerHTML = `<div class="alert alert-danger">No se pudo conectar con el servidor.</div>`;
+    }
+  });
+})();
+</script>
+
+{% endblock %}

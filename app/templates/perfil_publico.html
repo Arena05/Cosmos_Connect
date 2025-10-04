@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="dashboard-hero">
+  <div class="container">
+    <div class="cardx p-3">
+      <h4 class="mb-1">{{ u.name }}</h4>
+      <div class="text-light-70 mb-3">{{ u.bio or "Explorador del cosmos" }}</div>
+      <h6>Experimentos</h6>
+      <ul class="small">
+        {% for e in experiments %}
+          <li>{{ e.created_at.strftime("%d/%m") }} · {{ e.model_name }} · {{ (e.prob*100)|round(1) }}% · {{ e.predicted_class }}</li>
+        {% else %}
+          <li class="text-light-70">Sin experimentos aún.</li>
+        {% endfor %}
+      </ul>
+      <h6>Publicaciones</h6>
+      <ul class="small">
+        {% for p in posts %}
+          <li>{{ p.created_at.strftime("%d/%m") }} · {{ p.body }}</li>
+        {% else %}
+          <li class="text-light-70">Sin publicaciones.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</section>
+{% endblock %}

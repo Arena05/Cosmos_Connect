@@ -1,0 +1,73 @@
+
+{% extends "base.html" %}
+{% block content %}
+<section class="dashboard-hero">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+      <h4 class="mb-0">Comunidad</h4>
+      <div class="d-flex gap-2">
+        <a href="{{ url_for('main.aprendiz') }}" class="btn btn-outline-light btn-sm">Aprendiz</a>
+        <a href="{{ url_for('main.expertos') }}" class="btn btn-outline-light btn-sm">Expertos</a>
+      </div>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-lg-4">
+        <div class="cardx p-3">
+          <h6 class="mb-2">Comparte un avance</h6>
+          <form action="{{ url_for('main.publicar') }}" method="post">
+            <textarea name="body" rows="4" class="form-control mb-2" placeholder="Ej: Reporté un candidato con 78 % …"></textarea>
+            <button class="btn btn-cta-2 w-100">Publicar</button>
+          </form>
+          <p class="small text-light-70 mt-2 mb-0">Sin comentarios para evitar moderación. Usa reacciones 👏 ✨ 🛰️.</p>
+        </div>
+      </div>
+
+      <div class="col-lg-8">
+        {% for p in posts.items %}
+        <div class="cardx p-3 mb-2">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <div class="fw-semibold">
+                <a class="link-light text-decoration-none" href="{{ url_for('main.user_profile', user_id=p.user_id) }}">{{ p.author.name }}</a>
+                {% if p.auto %}<span class="badge bg-success ms-2">auto</span>{% endif %}
+              </div>
+              <div class="small text-light-70">{{ p.created_at.strftime("%d/%m/%Y %H:%M") }}</div>
+            </div>
+            <div>
+              <form action="{{ url_for('main.like_post', post_id=p.id) }}" method="post" class="d-inline">
+                <input type="hidden" name="kind" value="clap">
+                <button class="btn btn-sm btn-outline-light">👏 {{ p.likes.filter_by(kind='clap').count() }}</button>
+              </form>
+              <form action="{{ url_for('main.like_post', post_id=p.id) }}" method="post" class="d-inline ms-1">
+                <input type="hidden" name="kind" value="star">
+                <button class="btn btn-sm btn-outline-light">✨ {{ p.likes.filter_by(kind='star').count() }}</button>
+              </form>
+              <form action="{{ url_for('main.like_post', post_id=p.id) }}" method="post" class="d-inline ms-1">
+                <input type="hidden" name="kind" value="sat">
+                <button class="btn btn-sm btn-outline-light">🛰️ {{ p.likes.filter_by(kind='sat').count() }}</button>
+              </form>
+            </div>
+          </div>
+          <p class="mt-2 mb-0">{{ p.body }}</p>
+        </div>
+        {% else %}
+          <div class="cardx p-3"><div class="text-light-70">Aún no hay publicaciones. ¿Quieres romper el hielo? 🚀</div></div>
+        {% endfor %}
+
+        <nav class="mt-3">
+          <ul class="pagination pagination-sm">
+            <li class="page-item {% if not posts.has_prev %}disabled{% endif %}">
+              <a class="page-link" href="{{ url_for('main.comunidad', page=posts.prev_num) }}">Anterior</a>
+            </li>
+            <li class="page-item disabled"><span class="page-link">Página {{ posts.page }} / {{ posts.pages or 1 }}</span></li>
+            <li class="page-item {% if not posts.has_next %}disabled{% endif %}">
+              <a class="page-link" href="{{ url_for('main.comunidad', page=posts.next_num) }}">Siguiente</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
