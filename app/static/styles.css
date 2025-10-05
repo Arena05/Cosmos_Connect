@@ -1,52 +1,333 @@
-:root {
-  --bg: #0b0d16;
-  --card: #14182a;
-  --muted: #0f1322;
-  --text: #e6ebff;
-  --accent: #7aa2f7;
-  --ok: #53df83;
-  --warn: #f7768e;
-}
-* { box-sizing: border-box; }
-body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial; background: linear-gradient(180deg, var(--bg), #0a0d14 50%, #090b12); color: var(--text); }
-.topbar { display:flex; align-items:center; justify-content:space-between; padding: 12px 16px; }
-.brand a { color: var(--text); text-decoration:none; font-weight:700; }
-.mode-switch .chip { display:inline-block; padding:6px 10px; border-radius: 999px; border:1px solid #2b355b; margin-right: 6px; color: var(--text); text-decoration:none; }
-.mode-switch .chip.active { background: var(--accent); color: #0b0d16; border-color: transparent; }
-.user { display:flex; gap:10px; align-items:center; }
-.user .email { opacity:.9; font-size:.9rem; }
-main { max-width: 1024px; margin: 0 auto; padding: 20px; }
-.card { background: var(--card); border-radius: 16px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,.3); margin-bottom: 18px; }
-.card.muted { background: var(--muted); }
-.grid-form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 18px; }
-.row { display: contents; }
-label { align-self: center; }
-input, select { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #2b355b; background: #0c1020; color: var(--text); }
-.vform { display:flex; flex-direction:column; gap:8px; }
-.btn { display:inline-block; padding: 10px 14px; border:0; border-radius:12px; background: var(--accent); color: #0b0d16; font-weight: 700; cursor:pointer; text-decoration:none; }
-.btn.small { padding:6px 10px; font-size:.85rem; }
-.btn.warn { background: var(--warn); color: #1a0e0f; }
-.flash-container { max-width: 1024px; margin: 0 auto 8px; padding: 0 20px; }
-.flash { padding: 10px 12px; border-radius: 10px; margin: 6px 0; }
-.flash.success { background: rgba(83, 223, 131, .12); border: 1px solid rgba(83, 223, 131, .4); }
-.flash.error { background: rgba(247, 118, 142, .12); border: 1px solid rgba(247, 118, 142, .4); }
+/* =========================================================
+   SPACE IET · Exoplanet Scanner — Cosmic UI Pack
+   Autor: tú & yo | Solo CSS, sin librerías
+   ========================================================= */
 
-.prediction { font-size: 1.25rem; }
-.bars { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 10px; }
-.bar { display: grid; grid-template-columns: 160px 1fr 90px; align-items: center; gap: 10px; }
-.bar-track { height: 14px; background: #0d1124; border-radius: 8px; overflow: hidden; border: 1px solid #2b355b; }
-.bar-fill { height: 100%; background: linear-gradient(90deg, var(--ok), var(--accent)); }
-.kv { width: 100%; border-collapse: collapse; }
-.kv td { padding: 8px 10px; border-bottom: 1px solid #202642; }
-.kv tr:last-child td { border-bottom: 0; }
-.muted { opacity: .95; }
-/* Two-column expert layout */
-.grid-2 { display:grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-@media (max-width: 900px) {
-  .grid-2 { grid-template-columns: 1fr; }
+/* Tipografía (opcional). Si no la quieres, borra esta línea */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+
+/* ==============================
+   1) Tokens / Paleta de color
+   ============================== */
+:root{
+  /* Fondo cósmico */
+  --bg-0: #05060d;
+  --bg-1: #0a0f1f;
+  --nebula-a: #0d1b4b;
+  --nebula-b: #25104a;
+  --nebula-c: #062936;
+
+  /* Tarjetas y textos */
+  --card: rgba(18, 22, 42, 0.78);
+  --muted: rgba(10, 14, 30, 0.72);
+  --text: #e8f1ff;
+  --subtle: #9db6ff;
+
+  /* Acentos “astro” */
+  --accent: #9a6bff;       /* violeta */
+  --accent-2: #00e1ff;     /* cian */
+  --ok: #57f287;
+  --warn: #ff6b81;
+
+  /* Bordes y halos */
+  --border: rgba(154,107,255,.28);
+  --halo: rgba(0,225,255,.18);
+
+  /* Radios y ritmo */
+  --radius: 16px;
+  --radius-sm: 12px;
+  --pad: 20px;
+  --gap: 18px;
+  --speed: .18s;
+}
+
+*{ box-sizing: border-box; }
+
+/* ==============================
+   2) Fondo espacial con “nebulosas”
+   ============================== */
+html,body{ height:100%; }
+body{
+  margin:0;
+  font-family: "Inter", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial;
+  color: var(--text);
+  background:
+    radial-gradient(1200px 600px at 15% -10%, var(--nebula-a) 0%, transparent 60%),
+    radial-gradient(1000px 500px at 110% 10%, var(--nebula-b) 0%, transparent 55%),
+    radial-gradient(900px 600px at 50% 120%, var(--nebula-c) 0%, transparent 50%),
+    linear-gradient(180deg, var(--bg-0), var(--bg-1) 60%);
+  overflow-x: hidden;
+}
+
+/* Capa de estrellas estáticas */
+body::before{
+  content:"";
+  position: fixed; inset:0; pointer-events:none;
+  background:
+    radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,.8), transparent 60%),
+    radial-gradient(1px 1px at 28% 12%, rgba(255,255,255,.6), transparent 60%),
+    radial-gradient(1px 1px at 36% 72%, rgba(255,255,255,.7), transparent 60%),
+    radial-gradient(1px 1px at 64% 28%, rgba(255,255,255,.5), transparent 60%),
+    radial-gradient(1px 1px at 82% 58%, rgba(255,255,255,.6), transparent 60%),
+    radial-gradient(1px 1px at 92% 22%, rgba(255,255,255,.5), transparent 60%);
+  opacity:.28;
+  z-index:0;
+}
+
+/* Planeta con anillos (puro CSS) */
+body::after{
+  content:"";
+  position: fixed;
+  right:-220px; top:-160px;
+  width:520px; height:520px;
+  border-radius:50%;
+  background:
+    radial-gradient(closest-side, rgba(0,225,255,.25), transparent 60%),
+    radial-gradient(circle at 60% 40%, rgba(154,107,255,.35), transparent 60%),
+    radial-gradient(circle at 45% 55%, rgba(255,255,255,.08), transparent 60%);
+  box-shadow:
+    inset -40px -60px 120px rgba(0,0,0,.45),
+    0 0 80px rgba(154,107,255,.20);
+  filter: blur(.4px);
+  z-index:0;
+}
+@media (max-width: 960px){
+  body::after{ display:none; }
+}
+
+/* Anillos (usamos el header para montarles un pseudo-elemento) */
+.topbar::before{
+  content:"";
+  position: fixed; right:-40px; top:-15px;
+  width:680px; height:680px; pointer-events:none;
+  background:
+    radial-gradient(closest-side, transparent 64%, rgba(154,107,255,.25) 66%, transparent 67%) ,
+    radial-gradient(closest-side, transparent 72%, rgba(0,225,255,.20) 74%, transparent 75%) ,
+    radial-gradient(closest-side, transparent 80%, rgba(255,255,255,.12) 82%, transparent 83%);
+  transform: rotate(-18deg);
+  filter: blur(.3px);
+  z-index:0;
+}
+
+/* ==============================
+   3) Layout General
+   ============================== */
+main{ max-width: 1024px; margin:0 auto; padding: var(--pad); position: relative; z-index:1; }
+
+.topbar{
+  display:flex; align-items:center; justify-content:space-between; padding: 12px 16px;
+  position: relative; z-index:2;
+}
+.brand a{
+  color: var(--text); text-decoration:none; font-weight:800; letter-spacing:.3px;
+  text-shadow: 0 0 16px rgba(255,255,255,.05);
+}
+
+.mode-switch .chip{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:8px 12px; margin-right:6px;
+  border-radius: 999px; text-decoration:none; color: var(--text);
+  border:1px solid var(--border);
+  background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);
+  transition: transform var(--speed) ease, box-shadow var(--speed) ease, border-color var(--speed) ease, filter var(--speed) ease;
+}
+.mode-switch .chip:hover{
+  transform: translateY(-1px);
+  border-color: rgba(154,107,255,.45);
+  box-shadow: 0 10px 28px rgba(0,0,0,.40);
+}
+.mode-switch .chip.active{
+  background: radial-gradient(240px 90px at 20% 0, rgba(154,107,255,.3), transparent 60%),
+              linear-gradient(180deg, rgba(154,107,255,.24), rgba(154,107,255,.12));
+  color:#0b0d16; border-color: transparent;
+  box-shadow: 0 8px 22px rgba(154,107,255,.32);
+}
+
+.user{ display:flex; gap:10px; align-items:center; }
+.user .email{ color: var(--subtle); opacity:.92; font-size:.9rem; }
+
+/* ==============================
+   4) Tarjetas / vidrio espacial
+   ============================== */
+.card{
+  position: relative;
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: var(--pad);
+  margin-bottom: 18px;
+  border: 1px solid var(--border);
+  box-shadow:
+    0 18px 60px rgba(0,0,0,.48),
+    0 0 0 1px rgba(255,255,255,.02) inset;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.card.muted{ background: var(--muted); }
+
+/* halo orbital decorativo */
+.card::after{
+  content:"";
+  position:absolute; inset:-1px;
+  border-radius: inherit; pointer-events:none;
+  background:
+    conic-gradient(from 120deg, rgba(154,107,255,.16), rgba(0,225,255,.12), transparent 60% 100%);
+  filter: blur(18px);
+  opacity:.55;
+  mask: radial-gradient(circle at 65% -40%, transparent 0 60%, #000 62%);
+}
+
+/* ==============================
+   5) Formularios
+   ============================== */
+.grid-form{ display:grid; grid-template-columns: 1fr 1fr; gap: 12px 18px; }
+.row{ display: contents; }
+label{ align-self:center; color: var(--subtle); font-size: .95rem; }
+
+input,select{
+  width:100%;
+  padding: 12px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+  color: var(--text);
+  outline: none;
+  transition: border-color var(--speed) ease, box-shadow var(--speed) ease, transform var(--speed) ease;
+}
+input:focus,select:focus{
+  border-color: rgba(0,225,255,.72);
+  box-shadow: 0 0 0 4px var(--halo);
+  transform: translateY(-1px);
+}
+
+.vform{ display:flex; flex-direction:column; gap:10px; }
+
+/* Botones */
+.btn{
+  display:inline-block; padding: 12px 16px; border:0;
+  border-radius: 12px; font-weight: 800; letter-spacing:.2px;
+  color: #0b0d16; text-decoration:none; cursor:pointer;
+  background: linear-gradient(180deg, var(--accent), #6a56e6);
+  box-shadow: 0 12px 28px rgba(154,107,255,.35), inset 0 0 0 1px rgba(255,255,255,.22);
+  transition: transform var(--speed) ease, box-shadow var(--speed) ease, filter var(--speed) ease;
+}
+.btn:hover{ transform: translateY(-2px); box-shadow: 0 18px 34px rgba(154,107,255,.45); filter: saturate(1.05); }
+.btn.small{ padding:8px 12px; font-size:.88rem; }
+.btn.warn{
+  background: linear-gradient(180deg, var(--warn), #f04c66);
+  color: #1a0e0f;
+}
+
+/* ==============================
+   6) Flash mensajes
+   ============================== */
+.flash-container{ max-width:1024px; margin:0 auto 8px; padding:0 20px; }
+.flash{
+  padding: 10px 12px; margin:6px 0; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: rgba(255,255,255,.05);
+}
+.flash.success{
+  border-color: rgba(87,242,135,.45);
+  background: linear-gradient(180deg, rgba(87,242,135,.20), rgba(87,242,135,.10));
+}
+.flash.error{
+  border-color: rgba(255,107,129,.45);
+  background: linear-gradient(180deg, rgba(255,107,129,.20), rgba(255,107,129,.10));
+}
+
+/* ==============================
+   7) Barras de probabilidad (radar)
+   ============================== */
+.prediction{ font-size:1.28rem; }
+
+.bars{ display:grid; grid-template-columns:1fr; gap:12px; margin-top:10px; }
+.bar{ display:grid; grid-template-columns: 160px 1fr 90px; align-items:center; gap:10px; }
+
+.bar-track{
+  position: relative;
+  height: 16px; border-radius: 10px; overflow: hidden;
+  border: 1px solid var(--border);
+  background:
+    radial-gradient(8px 8px at 6% 50%, rgba(255,255,255,.05), transparent 40%),
+    radial-gradient(8px 8px at 26% 50%, rgba(255,255,255,.05), transparent 40%),
+    radial-gradient(8px 8px at 46% 50%, rgba(255,255,255,.05), transparent 40%),
+    radial-gradient(8px 8px at 66% 50%, rgba(255,255,255,.05), transparent 40%),
+    radial-gradient(8px 8px at 86% 50%, rgba(255,255,255,.05), transparent 40%),
+    #0b0f22;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+}
+
+.bar-fill{
+  height:100%;
+  background:
+    linear-gradient(90deg, var(--ok), var(--accent-2)),
+    repeating-linear-gradient( -45deg,
+      rgba(255,255,255,.22) 0 10px,
+      rgba(255,255,255,0) 10px 20px
+    );
+  background-blend-mode: screen;
+  box-shadow: 0 0 22px rgba(0,225,255,.22);
+  animation: scan 2.2s linear infinite;
+  transform-origin: left center;
+}
+@keyframes scan{
+  from{ background-position: 0 0, 0 0; }
+  to{   background-position: 0 0, 200px 0; }
+}
+
+/* Reducir animaciones si el usuario lo prefiere */
+@media (prefers-reduced-motion: reduce){
+  .bar-fill{ animation:none; }
+}
+
+/* ==============================
+   8) Tablas (Mis datos / Entradas)
+   ============================== */
+.kv{ width:100%; border-collapse: collapse; }
+.kv td, .kv th{ padding: 10px 12px; border-bottom: 1px solid #202642; }
+.kv th{
+  text-align:left; color: var(--subtle);
+  position: sticky; top: 0; background: rgba(10,14,30,.92);
+  backdrop-filter: blur(6px);
+}
+.kv tbody tr:hover td{ background: rgba(255,255,255,.02); }
+.kv tr:last-child td{ border-bottom: 0; }
+
+.table-wrap{ overflow:auto; border-radius: 12px; border: 1px solid var(--border); }
+
+/* ==============================
+   9) Layout “Experto” en 2 columnas
+   ============================== */
+.grid-2{ display:grid; grid-template-columns: 1fr 1fr; gap: var(--gap); }
+.card.inner{ margin-top: 12px; }
+
+@media (max-width: 900px){
+  .grid-2{ grid-template-columns: 1fr; }
   #hp-rf, #hp-dt, #hp-lr { display: block !important; }
 }
-.card.inner { margin-top: 12px; }
-.table-wrap { overflow:auto; }
-.kv th { text-align:left; border-bottom: 1px solid #202642; padding: 8px 10px; }
 
+/* ==============================
+   10) Accesibilidad
+   ============================== */
+:focus-visible{
+  outline: 3px solid rgba(0,225,255,.6);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* ==============================
+   11) Pequeños toques
+   ============================== */
+.muted{ opacity: .96; color: var(--subtle); }
+
+/* Burbujas de polvo cósmico en el main */
+main::after{
+  content:"";
+  position: absolute; left:-60px; bottom:-60px; width: 360px; height: 360px; z-index:-1;
+  background:
+    radial-gradient(closest-side, rgba(0,225,255,.22), transparent 70%),
+    radial-gradient(closest-side, rgba(154,107,255,.18), transparent 72%);
+  filter: blur(1px);
+  border-radius:50%;
+  opacity:.55;
+}
