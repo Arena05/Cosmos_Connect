@@ -15,12 +15,16 @@
   </section>
 
   <section class="card muted">
-  <h3>Model status</h3>
+    <h3>Model status</h3>
     {% if status.trained %}
       <p>Accuracy (NASA): <strong>{{ "%.2f"|format(status.accuracy*100) }}%</strong></p>
-  <p><small>Artifacts: <code>instance/models/{{ status.user_id }}/{{ status.key }}</code></small></p>
+      {% if status.precision_macro is defined %}
+        <p>Precision (macro): <strong>{{ "%.2f"|format((status.precision_macro or 0)*100) }}%</strong></p>
+      {% else %}
+        <p>Precision (macro): <strong>—</strong></p>
+      {% endif %}
     {% else %}
-  <p>Not trained: {{ status.error }}</p>
+      <p>Not trained: {{ status.error }}</p>
     {% endif %}
   </section>
 

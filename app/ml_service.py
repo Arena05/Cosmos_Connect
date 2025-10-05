@@ -8,7 +8,7 @@ import joblib
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, LabelEncoder
-from sklearn.metrics import accuracy_score, f1_score, balanced_accuracy_score
+from sklearn.metrics import accuracy_score, f1_score, balanced_accuracy_score, precision_score as sk_precision_score
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
@@ -174,12 +174,12 @@ def train_and_persist(model_name: str, params: Dict[str, Any], use_user_data: bo
     model.fit(X_train_s, y_train)
     y_pred = model.predict(X_test_s)
 
-    from sklearn.metrics import accuracy_score, f1_score, balanced_accuracy_score
+    from sklearn.metrics import accuracy_score, f1_score, balanced_accuracy_score, precision_score
     metrics = {
         "accuracy": float(accuracy_score(y_test, y_pred)),
         "f1_macro": float(f1_score(y_test, y_pred, average="macro")),
         "balanced_accuracy": float(balanced_accuracy_score(y_test, y_pred)),
-        "model_name": model_name,
+        "precision_macro": float(sk_precision_score(y_test, y_pred, average="macro", zero_division=0)),        "model_name": model_name,
         "params": params,
         "use_user_data": use_user_data,
         "user_id": user_id,
@@ -208,6 +208,10 @@ def get_model_bundle(model_name: str, params: Dict[str, Any], use_user_data: boo
             "label_encoder": joblib.load(paths["label_encoder"]),
             "meta": metrics,
         }
+        # Normaliza/asegura llaves nuevas para métricas antiguas
+        if metrics is not None:
+            metrics.setdefault("precision_macro", metrics.get("f1_macro", 0.0))
+      
         return bundle, {"trained": True, **metrics}
     except Exception as e:
         return {}, {"trained": False, "error": str(e)}

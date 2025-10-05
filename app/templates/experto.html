@@ -113,6 +113,12 @@
             <div class="bar"><span>Accuracy</span><div class="bar-track"><div class="bar-fill" style="width: {{ (status.accuracy*100)|round(1) }}%"></div></div><span>{{ (status.accuracy*100)|round(2) }}%</span></div>
             <div class="bar"><span>F1 Macro</span><div class="bar-track"><div class="bar-fill" style="width: {{ (status.f1_macro*100)|round(1) }}%"></div></div><span>{{ (status.f1_macro*100)|round(2) }}%</span></div>
             <div class="bar"><span>Balanced Acc.</span><div class="bar-track"><div class="bar-fill" style="width: {{ (status.balanced_accuracy*100)|round(1) }}%"></div></div><span>{{ (status.balanced_accuracy*100)|round(2) }}%</span></div>
+            {% if status.precision_macro is defined %}
+            <div class="bar"><span>Precision (macro)</span>
+              <div class="bar-track"><div class="bar-fill" style="width: {{ (status.precision_macro*100)|round(1) }}%"></div></div>
+              <span>{{ (status.precision_macro*100)|round(2) }}%</span>
+            </div>
+            {% endif %}            
           </div>
         {% else %}
           <p class="muted">Train a model to see metrics here.</p>
