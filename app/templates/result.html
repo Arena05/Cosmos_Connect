@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+  <section class="card">
+    <h2>Resultado</h2>
+    <p class="prediction">Clasificación: <strong>{{ pred_label }}</strong></p>
+    <div class="bars">
+      {% for name, p in proba_map.items() %}
+        <div class="bar">
+          <span class="bar-label">{{ name }}</span>
+          <div class="bar-track"><div class="bar-fill" style="width: {{ (p * 100) | round(1) }}%"></div></div>
+          <span class="bar-value">{{ (p * 100) | round(2) }}%</span>
+        </div>
+      {% endfor %}
+    </div>
+    <p><small>Modelo: {{ model_name if model_name else status.model_name }} · Accuracy: {{ "%.2f"|format(status.accuracy * 100) }}%</small></p>
+  </section>
+
+  <section class="card muted">
+    <h3>Entradas</h3>
+    <table class="kv">
+      <tbody>
+        {% for k, v in values.items() %}
+          <tr><td>{{ labels[k] }}</td><td>{{ v }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="actions">
+      <form action="{{ url_for('main.save_sample') }}" method="post" style="display:inline-block;">
+        <input type="hidden" name="mode" value="{{ mode or 'novato' }}">
+        <input type="hidden" name="predicted_raw" value="{{ 'CONFIRMED' if pred_label=='Confirmado' else 'FALSE POSITIVE' }}">
+        {% for k, v in values.items() %}
+          <input type="hidden" name="{{ k }}" value="{{ v }}">
+        {% endfor %}
+        <button class="btn" type="submit">Guardar muestra en mi dataset</button>
+      </form>
+
+      <form action="{{ url_for('main.retrain') }}" method="post" style="display:inline-block;">
+        <input type="hidden" name="mode" value="{{ mode or 'novato' }}">
+        <input type="hidden" name="modelo" value="{{ model_name if model_name else status.model_name }}">
+        <input type="hidden" name="params_json" value='{{ params|tojson if params else "{}" }}'>
+        <button class="btn" type="submit">Reentrenar con mis datos</button>
+      </form>
+
+      <a href="{{ url_for('main.' + (mode or 'novato')) }}" class="btn">Nueva predicción</a>
+    </div>
+  </section>
+{% endblock %}

@@ -1,238 +1,242 @@
-
 from __future__ import annotations
-import json, time
+import hashlib, json
 from pathlib import Path
 from typing import Dict, Any, Tuple, Optional
-
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, balanced_accuracy_score, f1_score, recall_score
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier
 import joblib
 
-# === Paths (usar carpeta instance que ya existe y es escribible) ============
-BASE_DIR = Path(__file__).resolve().parent.parent  # <repo>/
-INSTANCE_DIR = BASE_DIR / "instance"
-MODELS_DIR = INSTANCE_DIR / "models"
-DATA_CSV = INSTANCE_DIR / "combined.csv"
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.metrics import accuracy_score, f1_score, balanced_accuracy_score
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.linear_model import LogisticRegression
 
-INSTANCE_DIR.mkdir(exist_ok=True)
-MODELS_DIR.mkdir(exist_ok=True)
-
-# === Esquema de features consistent con UI (FIELDS en routes.py) ============
 FEATURES = [
-    "ra",
-    "dec",
-    "period",
-    "duration",
-    "depth",
-    "planet_radius",
-    "insolation",
-    "equilibrium_temp",
-    "stellar_teff",
-    "stellar_logg",
-    "stellar_radius",
+    "ra", "dec", "period", "duration", "depth",
+    "planet_radius", "insolation", "equilibrium_temp",
+    "stellar_teff", "stellar_logg", "stellar_radius",
 ]
 
+UI_LABELS: Dict[str, str] = {
+    "ra": "Ascensión recta (°)",
+    "dec": "Declinación (°)",
+    "period": "Período orbital (días)",
+    "duration": "Duración del tránsito (horas)",
+    "depth": "Profundidad del tránsito (ppm)",
+    "planet_radius": "Radio del planeta (R⊕)",
+    "insolation": "Flujo de insolación (F⊕)",
+    "equilibrium_temp": "Temperatura de equilibrio (K)",
+    "stellar_teff": "Tₑff estelar (K)",
+    "stellar_logg": "log g estelar (cm/s²)",
+    "stellar_radius": "Radio estelar (R☉)",
+}
 
-LABEL_COL = "label"  # texto: 'CONFIRMED' | 'FALSE POSITIVE' | 'CANDIDATE' | etc.
+BASE_DIR = Path(__file__).resolve().parents[1]
+INSTANCE_DIR = BASE_DIR / "instance"
+MODELS_DIR = INSTANCE_DIR / "models"
+CACHE_DIR = INSTANCE_DIR / "cache"
 
-# === Utilidades ==============================================================
-def _ensure_csv_header():
-    """Si no existe el CSV, crear con encabezados (features + label)."""
-    if not DATA_CSV.exists():
-        df = pd.DataFrame(columns=FEATURES + [LABEL_COL])
-        df.to_csv(DATA_CSV, index=False)
+ARTIFACTS_BASENAME = "bundle"
 
-def load_dataset(strict: bool = True) -> pd.DataFrame:
-    """
-    Cargar dataset desde instance/combined.csv.
-    strict=True -> lanzar error si no existe o no tiene suficientes filas.
-    """
-    if not DATA_CSV.exists():
-        if strict:
-            raise FileNotFoundError("No existe instance/combined.csv. Agrega muestras guardando experimentos o sube tu dataset.")
-        _ensure_csv_header()
-        return pd.read_csv(DATA_CSV)
-    df = pd.read_csv(DATA_CSV)
-    # Tipos numéricos (ignorar filas con NaN en features)
-    for c in FEATURES:
-        df[c] = pd.to_numeric(df[c], errors="coerce")
-    df = df.dropna(subset=FEATURES)
-    # Filtrar filas sin etiqueta
-    df = df[df[LABEL_COL].notna()].copy()
-    if strict and len(df) < 10:
-        raise ValueError("El dataset tiene menos de 10 filas útiles. Agrega más ejemplos para entrenar.")
+DEFAULT_NOVICE_MODEL = ("Random Forest", {"n_estimators": 1000, "random_state": 10})
+
+def _fetch_nasa() -> pd.DataFrame:
+    cache_file = CACHE_DIR / "nasa_merged.parquet"
+    if cache_file.exists():
+        return pd.read_parquet(cache_file)
+
+    urls = {
+        "koi": "https://exoplanetarchive.ipac.caltech.edu/cgi-bin/nstedAPI/nph-nstedAPI?table=cumulative&select=koi_disposition,ra,dec,koi_period,koi_duration,koi_depth,koi_prad,koi_insol,koi_teq,koi_steff,koi_slogg,koi_srad&format=csv",
+        "toi": "https://exoplanetarchive.ipac.caltech.edu/cgi-bin/nstedAPI/nph-nstedAPI?table=toi&select=tfopwg_disp,ra,dec,pl_orbper,pl_trandurh,pl_trandep,pl_rade,pl_insol,pl_eqt,st_teff,st_logg,st_rad&format=csv",
+        "k2":  "https://exoplanetarchive.ipac.caltech.edu/TAP/sync?query=select+disposition,ra,dec,pl_orbper,pl_trandur,(pl_trandep*10000),pl_rade,pl_insol,pl_eqt,st_teff,st_logg,st_rad+from+k2pandc+order+by+hostname+asc,pl_letter+asc,pl_name+asc&format=csv",
+    }
+    df_koi = pd.read_csv(urls["koi"], low_memory=False).rename(columns={
+        "koi_disposition": "disposition",
+        "koi_period": "period",
+        "koi_duration": "duration",
+        "koi_depth": "depth",
+        "koi_prad": "planet_radius",
+        "koi_insol": "insolation",
+        "koi_teq": "equilibrium_temp",
+        "koi_steff": "stellar_teff",
+        "koi_slogg": "stellar_logg",
+        "koi_srad": "stellar_radius",
+    })
+    df_toi = pd.read_csv(urls["toi"], low_memory=False).rename(columns={
+        "tfopwg_disp": "disposition",
+        "pl_orbper": "period",
+        "pl_trandurh": "duration",
+        "pl_trandep": "depth",
+        "pl_rade": "planet_radius",
+        "pl_insol": "insolation",
+        "pl_eqt": "equilibrium_temp",
+        "st_teff": "stellar_teff",
+        "st_logg": "stellar_logg",
+        "st_rad": "stellar_radius",
+    })
+    df_k2 = pd.read_csv(urls["k2"], low_memory=False).rename(columns={
+        "pl_orbper": "period",
+        "pl_trandur": "duration",
+        "(pl_trandep*10000)": "depth",
+        "pl_rade": "planet_radius",
+        "pl_insol": "insolation",
+        "pl_eqt": "equilibrium_temp",
+        "st_teff": "stellar_teff",
+        "st_logg": "stellar_logg",
+        "st_rad": "stellar_radius",
+    })
+    df = pd.concat([df_koi, df_toi, df_k2], ignore_index=True, sort=False)
+    disposition_mapping = {
+        "APC": "CANDIDATE",
+        "CP": "CONFIRMED",
+        "FA": "FALSE POSITIVE",
+        "FP": "FALSE POSITIVE",
+        "KP": "CONFIRMED",
+        "PC": "CANDIDATE",
+        "REFUTED": "FALSE POSITIVE",
+    }
+    if "disposition" in df.columns:
+        df["disposition"] = df["disposition"].replace(disposition_mapping)
+    df = df.dropna(subset=FEATURES + ["disposition"]).reset_index(drop=True)
+    df = df[df["disposition"].isin(["CONFIRMED", "FALSE POSITIVE"])].reset_index(drop=True)
+    df = df[FEATURES + ["disposition"]]
+    df.to_parquet(cache_file, index=False)
     return df
 
-def features_from_criterios(criterios: list[dict], feature_means: Optional[dict] = None) -> np.ndarray:
-    """
-    Construye un vector en el ORDEN de FEATURES a partir de 'criterios' (lista con 'key','mag').
-    Si algún valor falta, usa 'feature_means' si se proporciona; de lo contrario, 0.0.
-    """
-    vals = []
-    means = feature_means or {}
-    lookup = {c["key"]: c.get("mag", "") for c in criterios}
-    for key in FEATURES:
-        raw = str(lookup.get(key, "")).strip()
-        if raw == "":
-            fill = means.get(key, 0.0)
-            vals.append(float(fill))
-        else:
-            try:
-                vals.append(float(raw))
-            except Exception:
-                vals.append(means.get(key, 0.0))
-    return np.array(vals, dtype=float).reshape(1, -1)
+def _assemble_training_df(user_rows: Optional[pd.DataFrame]):
+    base = _fetch_nasa()
+    if user_rows is not None and len(user_rows) > 0:
+        base = pd.concat([base, user_rows], ignore_index=True)
+    le = LabelEncoder()
+    base["disposition"] = le.fit_transform(base["disposition"])
+    return base, le
 
-def build_dataset_means(df: pd.DataFrame) -> dict:
-    return {c: float(df[c].mean()) for c in FEATURES}
-
-def _encode_labels(y_text: pd.Series) -> Tuple[np.ndarray, list[str], dict]:
-    classes = sorted(y_text.dropna().unique().tolist())
-    mapping = {c: i for i, c in enumerate(classes)}
-    y_idx = y_text.map(mapping).values
-    return y_idx, classes, mapping
-
-def _make_pipeline(model_key: str, hp: Dict[str, Any]) -> Pipeline:
-    if model_key == "lr":
-        clf = LogisticRegression(C=hp.get("C", 1.0), max_iter=hp.get("max_iter", 200), random_state=hp.get("random_state", 42))
-        pipe = Pipeline([("scaler", StandardScaler()), ("clf", clf)])
-    elif model_key == "dt":
-        clf = DecisionTreeClassifier(max_depth=hp.get("max_depth", 8),
-                                     min_samples_split=hp.get("min_samples_split", 10),
-                                     min_samples_leaf=hp.get("min_samples_leaf", 4),
-                                     random_state=hp.get("random_state", 42))
-        pipe = Pipeline([("clf", clf)])
-    elif model_key == "rf":
-        clf = RandomForestClassifier(n_estimators=hp.get("n_estimators", 800),
-                                     max_depth=hp.get("max_depth", 20),
-                                     min_samples_split=hp.get("min_samples_split", 10),
-                                     random_state=hp.get("random_state", 42),
-                                     n_jobs=-1)
-        pipe = Pipeline([("clf", clf)])
+def _model_from_choice(name: str, params: Dict[str, Any]):
+    if name == "Decision Tree":
+        return DecisionTreeClassifier(
+            max_depth=int(params.get("max_depth", 12)),
+            min_samples_split=int(params.get("min_samples_split", 10)),
+            min_samples_leaf=int(params.get("min_samples_leaf", 2)),
+            random_state=int(params.get("random_state", 42)),
+        )
+    elif name == "Logistic Regression":
+        return LogisticRegression(
+            C=float(params.get("C", 1.0)),
+            max_iter=int(params.get("max_iter", 400)),
+            random_state=int(params.get("random_state", 42)),
+        )
     else:
-        raise ValueError("Modelo no soportado")
-    return pipe
+        return RandomForestClassifier(
+            n_estimators=int(params.get("n_estimators", 800)),
+            max_depth=int(params.get("max_depth", 20)) if params.get("max_depth") is not None else None,
+            min_samples_split=int(params.get("min_samples_split", 10)),
+            random_state=int(params.get("random_state", 42)),
+        )
 
-def train_and_eval(model_key: str, hp: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Entrena el modelo elegido y guarda pipeline + clases en instance/models.
-    Devuelve métricas y objetos útiles.
-    """
-    df = load_dataset(strict=True)
-    X = df[FEATURES].copy()
-    y_text = df[LABEL_COL].astype(str)
-    y, classes, mapping = _encode_labels(y_text)
+def _key_for(name: str, params: Dict[str, Any], use_user_data: bool, user_id: Optional[int]) -> str:
+    param_items = ",".join(f"{k}={params[k]}" for k in sorted(params.keys()))
+    raw = f"{name}|{param_items}|useraug={use_user_data}|uid={user_id}"
+    import hashlib
+    return hashlib.md5(raw.encode("utf-8")).hexdigest()
 
-    Xtr, Xte, ytr, yte = train_test_split(X, y, test_size=0.2, stratify=y, random_state=42)
-
-    pipe = _make_pipeline(model_key, hp)
-    t0 = time.time()
-    pipe.fit(Xtr, ytr)
-    train_secs = round(time.time() - t0, 3)
-
-    yhat = pipe.predict(Xte)
-    metrics = {
-        "accuracy": float(accuracy_score(yte, yhat)),
-        "balanced_accuracy": float(balanced_accuracy_score(yte, yhat)),
-        "recall": float(recall_score(yte, yhat, average="macro")),
-        "f1": float(f1_score(yte, yhat, average="macro")),
-        "time": f"{train_secs}s",
-    }
-
-    # Guardar modelo
-    joblib.dump(pipe, MODELS_DIR / f"model_{model_key}.pkl")
-    with open(MODELS_DIR / "classes.json", "w") as f:
-        json.dump(classes, f)
-
-    # medias por si el UI manda campos vacíos
-    means = build_dataset_means(df)
-
+def _paths_for(user_id: Optional[int], key: str):
+    root = MODELS_DIR / (str(user_id) if user_id is not None else "shared") / key
+    root.mkdir(parents=True, exist_ok=True)
     return {
-        "pipe": pipe,
-        "classes": classes,
-        "means": means,
-        "metrics": metrics,
+        "root": root,
+        "scaler": root / "scaler.joblib",
+        "model": root / "model.joblib",
+        "label_encoder": root / "label_encoder.joblib",
+        "meta": root / "meta.json",
     }
 
-def _load_model(model_key: str):
-    p = MODELS_DIR / f"model_{model_key}.pkl"
-    if not p.exists():
-        return None, None
-    pipe = joblib.load(p)
-    classes = None
-    cj = MODELS_DIR / "classes.json"
-    if cj.exists():
-        with open(cj) as f:
-            classes = json.load(f)
-    return pipe, classes
+def artifacts_exist(user_id: Optional[int], key: str) -> bool:
+    p = _paths_for(user_id, key)
+    return p["scaler"].exists() and p["model"].exists() and p["label_encoder"].exists() and p["meta"].exists()
 
-def predict_from_criterios(model_key: str, criterios: list[dict]) -> Dict[str, Any]:
-    """
-    Usa el modelo guardado (o entrena rápido con defaults si no existe dataset).
-    Devuelve dict con 'prob', 'clase' y 'classes'.
-    """
-    pipe, classes = _load_model(model_key)
-    if pipe is None or classes is None:
-        # Intentar entrenamiento con parámetros por defecto si hay dataset
-        try:
-            info = train_and_eval(model_key, {})
-            pipe, classes = info["pipe"], info["classes"]
-            means = info["means"]
-        except Exception:
-            # sin dataset, devolvemos un resultado suave pero consistente
-            # (similar al _fake_pred previo) basado en la cantidad de campos llenos
-            filled = sum(1 for r in criterios if str(r.get("mag","")).strip() != "")
-            score = min(0.99, 0.55 + 0.03 * filled)
-            clase = "Posible exoplaneta" if score >= 0.70 else "No candidato"
-            return {"prob": round(score, 3), "clase": clase, "classes": ["NEG","POS"]}
-    else:
-        # medias para imputar vacíos
-        try:
-            df = load_dataset(strict=False)
-            means = build_dataset_means(df) if len(df) else {}
-        except Exception:
-            means = {}
+def train_and_persist(model_name: str, params: Dict[str, Any], use_user_data: bool, user_id: Optional[int], user_rows_df: Optional[pd.DataFrame]=None):
+    key = _key_for(model_name, params, use_user_data, user_id)
+    paths = _paths_for(user_id, key)
 
-    # Construir vector
-    X = features_from_criterios(criterios, means)
-    # Probabilidad para la mejor clase (tomamos el índice de prob máx)
-    if hasattr(pipe, "predict_proba"):
-        proba = pipe.predict_proba(X)[0]
-        idx = int(np.argmax(proba))
-        prob = float(proba[idx])
-        label = classes[idx]
-    else:
-        idx = int(pipe.predict(X)[0])
-        label = classes[idx]
-        prob = 1.0
-    clase = "Posible exoplaneta" if prob >= 0.70 else "No candidato"
-    return {"prob": prob, "clase": clase, "classes": classes}
+    df, le = _assemble_training_df(user_rows_df if use_user_data else None)
+    X = df[FEATURES].values
+    y = df["disposition"].values
 
-def append_row_and_retrain(criterios: list[dict], label: str, model_key: str, hp: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Agrega una fila al CSV (features + label) y reentrena el modelo indicado.
-    """
-    _ensure_csv_header()
-    # cargar para medias y garantizar orden
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42, stratify=y)
+
+    scaler = StandardScaler()
+    X_train_s = scaler.fit_transform(X_train)
+    X_test_s  = scaler.transform(X_test)
+
+    model = _model_from_choice(model_name, params)
+    model.fit(X_train_s, y_train)
+    y_pred = model.predict(X_test_s)
+
+    from sklearn.metrics import accuracy_score, f1_score, balanced_accuracy_score
+    metrics = {
+        "accuracy": float(accuracy_score(y_test, y_pred)),
+        "f1_macro": float(f1_score(y_test, y_pred, average="macro")),
+        "balanced_accuracy": float(balanced_accuracy_score(y_test, y_pred)),
+        "model_name": model_name,
+        "params": params,
+        "use_user_data": use_user_data,
+        "user_id": user_id,
+        "key": key,
+    }
+    import joblib, json
+    joblib.dump(scaler, paths["scaler"])
+    joblib.dump(model, paths["model"])
+    joblib.dump(le, paths["label_encoder"])
+    paths["meta"].write_text(json.dumps(metrics, indent=2), encoding="utf-8")
+    return metrics
+
+def get_model_bundle(model_name: str, params: Dict[str, Any], use_user_data: bool, user_id: Optional[int], user_rows_df: Optional[pd.DataFrame]=None):
+    key = _key_for(model_name, params, use_user_data, user_id)
+    paths = _paths_for(user_id, key)
     try:
-        df = load_dataset(strict=False)
-    except Exception:
-        df = pd.DataFrame(columns=FEATURES+[LABEL_COL])
+        if not artifacts_exist(user_id, key):
+            metrics = train_and_persist(model_name, params, use_user_data, user_id, user_rows_df=user_rows_df)
+        else:
+            import json
+            metrics = json.loads(paths["meta"].read_text(encoding="utf-8"))
+        import joblib
+        bundle = {
+            "scaler": joblib.load(paths["scaler"]),
+            "model": joblib.load(paths["model"]),
+            "label_encoder": joblib.load(paths["label_encoder"]),
+            "meta": metrics,
+        }
+        return bundle, {"trained": True, **metrics}
+    except Exception as e:
+        return {}, {"trained": False, "error": str(e)}
 
-    means = build_dataset_means(df) if len(df) else {}
-    X = features_from_criterios(criterios, means)
-    row = {FEATURES[i]: float(X[0, i]) for i in range(len(FEATURES))}
-    row[LABEL_COL] = str(label)
-    # append
-    pd.DataFrame([row]).to_csv(DATA_CSV, mode="a", header=not DATA_CSV.exists() or DATA_CSV.stat().st_size==0, index=False)
+def predict_one(bundle: Dict[str, Any], values: list[float]):
+    scaler = bundle["scaler"]
+    model = bundle["model"]
+    le = bundle["label_encoder"]
 
-    # reentrenar
-    info = train_and_eval(model_key, hp or {})
-    return {"ok": True, "metrics": info["metrics"]}
+    import numpy as np
+    x = np.array(values, dtype=float).reshape(1, -1)
+    xs = scaler.transform(x)
+
+    if hasattr(model, "predict_proba"):
+        proba = model.predict_proba(xs)[0]
+    else:
+        proba = np.array([0.5, 0.5])
+
+    classes = list(le.classes_)  # ["CONFIRMED", "FALSE POSITIVE"]
+    idx = int(np.argmax(proba))
+    pred_str = classes[idx]
+
+    name_map = {"CONFIRMED": "Confirmado", "FALSE POSITIVE": "Falso positivo"}
+    pred_label = name_map.get(pred_str, pred_str)
+
+    proba_map = {
+        "Confirmado": float(proba[classes.index("CONFIRMED")]) if "CONFIRMED" in classes else float(proba[0]),
+        "Falso positivo": float(proba[classes.index("FALSE POSITIVE")]) if "FALSE POSITIVE" in classes else float(proba[1]),
+    }
+    return pred_label, proba_map
+
+DEFAULT_NOVICE_MODEL = ("Random Forest", {"n_estimators": 1000, "random_state": 10})
