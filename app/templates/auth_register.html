@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
   <section class="card" style="max-width:480px;margin:0 auto;">
-    <h2>Registro</h2>
+  <h2>Register</h2>
     <form method="post" action="{{ url_for('auth.register') }}" class="vform">
-      <label>Email</label>
-      <input type="email" name="email" required>
-      <label>Contraseña</label>
-      <input type="password" name="password" required>
-      <button class="btn" type="submit">Crear cuenta</button>
-      <p><small>¿Ya tienes cuenta? <a href="{{ url_for('auth.login') }}">Inicia sesión</a></small></p>
+  <label>Email</label>
+  <input type="email" name="email" required>
+  <label>Password</label>
+  <input type="password" name="password" required>
+  <button class="btn" type="submit">Create account</button>
+  <p><small>Already have an account? <a href="{{ url_for('auth.login') }}">Login</a></small></p>
     </form>
   </section>
 {% endblock %}

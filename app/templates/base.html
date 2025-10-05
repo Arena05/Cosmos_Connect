@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>SPACE IET · Clasificador de Exoplanetas</title>
+    <title>SPACE IET · Exoplanet Classifier</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   </head>
   <body>
@@ -12,15 +12,15 @@
       <div class="right">
         {% if current_user.is_authenticated %}
           <div class="mode-switch">
-            <a href="{{ url_for('main.novato') }}" class="chip {% if request.endpoint=='main.novato' %}active{% endif %}">Novato</a>
-            <a href="{{ url_for('main.experto') }}" class="chip {% if request.endpoint=='main.experto' %}active{% endif %}">Experto</a>
+            <a href="{{ url_for('main.novato') }}" class="chip {% if request.endpoint=='main.novato' %}active{% endif %}">Enthusiast</a>
+            <a href="{{ url_for('main.experto') }}" class="chip {% if request.endpoint=='main.experto' %}active{% endif %}">AI Trainer</a>
           </div>
           <div class="user">
             <span class="email">{{ current_user.email }}</span>
-            <a href="{{ url_for('auth.logout') }}" class="btn small">Salir</a>
+            <a href="{{ url_for('auth.logout') }}" class="btn small">Logout</a>
           </div>
         {% else %}
-          <a href="{{ url_for('auth.login') }}" class="btn small">Entrar</a>
+          <a href="{{ url_for('auth.login') }}" class="btn small">Login</a>
         {% endif %}
       </div>
     </header>
@@ -40,7 +40,7 @@
     </main>
 
     <footer>
-      <small>Hackathon NASA Space Apps · Demo educativa</small>
+      <small>NASA Space Apps Challenge</small>
     </footer>
   </body>
 </html>

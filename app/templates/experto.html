@@ -3,9 +3,9 @@
   <section class="card grid-2">
     <!-- Columna izquierda: Entrenamiento -->
     <div>
-      <h2>Entrenar (panel izquierdo)</h2>
+  <h2>Train (left panel)</h2>
       <form action="{{ url_for('main.train_experto') }}" method="post" class="vform">
-        <label>Modelo</label>
+  <label>Model</label>
         <select name="modelo" id="modelo" onchange="toggleHP()" required>
           {% set current_model = (current_cfg.model_name if current_cfg else 'Random Forest') %}
           <option {% if current_model=='Random Forest' %}selected{% endif %}>Random Forest</option>
@@ -99,14 +99,14 @@
           </select>
         </div>
 
-        <label style="margin-top:8px;">Incluir mis datos añadidos</label>
+  <label style="margin-top:8px;">Include my added data</label>
         <input type="checkbox" name="use_user_data" {% if current_cfg and current_cfg.use_user_data %}checked{% endif %}>
 
-        <button type="submit" class="btn" style="margin-top:10px;">Entrenar</button>
+  <button type="submit" class="btn" style="margin-top:10px;">Train</button>
       </form>
 
       <section class="card muted inner">
-        <h3>Estado del modelo</h3>
+        <h3>Model status</h3>
         {% if status %}
           <p><small>{{ status.model_name }} · key: <code>{{ status.key }}</code></small></p>
           <div class="bars">
@@ -115,14 +115,14 @@
             <div class="bar"><span>Balanced Acc.</span><div class="bar-track"><div class="bar-fill" style="width: {{ (status.balanced_accuracy*100)|round(1) }}%"></div></div><span>{{ (status.balanced_accuracy*100)|round(2) }}%</span></div>
           </div>
         {% else %}
-          <p class="muted">Entrena un modelo para ver métricas aquí.</p>
+          <p class="muted">Train a model to see metrics here.</p>
         {% endif %}
       </section>
     </div>
 
-    <!-- Columna derecha: Predicción -->
+    <!-- Right column: Prediction -->
     <div>
-      <h2>Predecir (usa el último modelo entrenado)</h2>
+      <h2>Predict (use the last trained model)</h2>
       <form action="{{ url_for('main.predict_experto') }}" method="post" class="grid-form">
         {% for key in features %}
         <div class="row">
@@ -130,10 +130,10 @@
           <input type="number" step="any" name="{{ key }}" id="{{ key }}" required placeholder="0.0">
         </div>
         {% endfor %}
-        <button type="submit" class="btn">Predecir</button>
+  <button type="submit" class="btn">Predict</button>
       </form>
       {% if status %}
-      <p class="muted" style="margin-top:8px;"><small>Modelo actual: {{ status.model_name }} · Accuracy {{ (status.accuracy*100)|round(2) }}%</small></p>
+  <p class="muted" style="margin-top:8px;"><small>Current model: {{ status.model_name }} · Accuracy {{ (status.accuracy*100)|round(2) }}%</small></p>
       {% endif %}
     </div>
   </section>

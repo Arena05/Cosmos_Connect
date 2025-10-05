@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
   <section class="card">
-    <h2>Modo Novato</h2>
-    <p class="muted">Modelo fijo: <strong>Random Forest</strong> (n_estimators=1000, random_state=10).</p>
+  <h2>Enthusiast Mode</h2>
+  <p class="muted">Fixed model: <strong>Random Forest</strong> (n_estimators=1000, random_state=10).</p>
     <form action="{{ url_for('main.predict_novato') }}" method="post" class="grid-form">
       {% for key in features %}
       <div class="row">
@@ -10,25 +10,25 @@
         <input type="number" step="any" name="{{ key }}" id="{{ key }}" required placeholder="0.0">
       </div>
       {% endfor %}
-      <button type="submit" class="btn">Predecir</button>
+  <button type="submit" class="btn">Predict</button>
     </form>
   </section>
 
   <section class="card muted">
-    <h3>Estado del modelo</h3>
+  <h3>Model status</h3>
     {% if status.trained %}
       <p>Accuracy (NASA): <strong>{{ "%.2f"|format(status.accuracy*100) }}%</strong></p>
-      <p><small>Artefactos: <code>instance/models/{{ status.user_id }}/{{ status.key }}</code></small></p>
+  <p><small>Artifacts: <code>instance/models/{{ status.user_id }}/{{ status.key }}</code></small></p>
     {% else %}
-      <p>No entrenado: {{ status.error }}</p>
+  <p>Not trained: {{ status.error }}</p>
     {% endif %}
   </section>
 
   <section class="card muted">
-    <h3>Tus datos</h3>
-    <form action="{{ url_for('main.clear_my_data') }}" method="post" onsubmit="return confirm('¿Eliminar todas tus muestras?');">
+    <h3>Your data</h3>
+    <form action="{{ url_for('main.clear_my_data') }}" method="post" onsubmit="return confirm('Delete all your samples?');">
       <input type="hidden" name="mode" value="novato">
-      <button class="btn warn" type="submit">Eliminar mis datos añadidos</button>
+      <button class="btn warn" type="submit">Delete my added data</button>
     </form>
   </section>
 {% endblock %}

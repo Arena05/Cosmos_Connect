@@ -20,17 +20,17 @@ FEATURES = [
 ]
 
 UI_LABELS: Dict[str, str] = {
-    "ra": "Ascensión recta (°)",
-    "dec": "Declinación (°)",
-    "period": "Período orbital (días)",
-    "duration": "Duración del tránsito (horas)",
-    "depth": "Profundidad del tránsito (ppm)",
-    "planet_radius": "Radio del planeta (R⊕)",
-    "insolation": "Flujo de insolación (F⊕)",
-    "equilibrium_temp": "Temperatura de equilibrio (K)",
-    "stellar_teff": "Tₑff estelar (K)",
-    "stellar_logg": "log g estelar (cm/s²)",
-    "stellar_radius": "Radio estelar (R☉)",
+    "ra": "Right Ascension (°)",
+    "dec": "Declination (°)",
+    "period": "Orbital Period (days)",
+    "duration": "Transit Duration (hours)",
+    "depth": "Transit Depth (ppm)",
+    "planet_radius": "Planetary Radius (R⊕)",
+    "insolation": "Insolation Flux (F⊕)",
+    "equilibrium_temp": "Equilibrium Temperature (K)",
+    "stellar_teff": "Stellar Effective Temperature (K)",
+    "stellar_logg": "Stellar Surface Gravity (cm/s²)",
+    "stellar_radius": "Stellar Radius (R☉)",
 }
 
 BASE_DIR = Path(__file__).resolve().parents[1]
