@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+  <section class="card">
+    <h2>Mis datos guardados</h2>
+    {% if rows and rows|length > 0 %}
+      <div class="table-wrap">
+        <table class="kv">
+          <thead>
+            <tr>
+              <th>Fecha y hora</th>
+              <th>Etiqueta</th>
+              {% for f in features %}<th>{{ labels[f] }}</th>{% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in rows %}
+              <tr>
+                <td>{{ r.created_at }}</td>
+                <td>{{ r.disposition }}</td>
+                {% for f in features %}<td>{{ r[f] }}</td>{% endfor %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="muted">Aún no has guardado muestras. Realiza una predicción y pulsa "Guardar muestra en mi dataset".</p>
+    {% endif %}
+  </section>
+
+  <section class="card muted">
+    <form action="{{ url_for('main.clear_my_data') }}" method="post" onsubmit="return confirm('¿Eliminar todas tus muestras?');">
+      <button class="btn warn" type="submit">Eliminar mis datos añadidos</button>
+    </form>
+  </section>
+{% endblock %}

@@ -1,111 +1,150 @@
 {% extends "base.html" %}
 {% block content %}
-  <section class="card">
-    <h2>Modo Experto</h2>
-    <form action="{{ url_for('main.predict_experto') }}" method="post" class="grid-form">
-      <div class="row">
+  <section class="card grid-2">
+    <!-- Columna izquierda: Entrenamiento -->
+    <div>
+      <h2>Entrenar (panel izquierdo)</h2>
+      <form action="{{ url_for('main.train_experto') }}" method="post" class="vform">
         <label>Modelo</label>
         <select name="modelo" id="modelo" onchange="toggleHP()" required>
-          <option>Random Forest</option>
-          <option>Decision Tree</option>
-          <option>Logistic Regression</option>
+          {% set current_model = (current_cfg.model_name if current_cfg else 'Random Forest') %}
+          <option {% if current_model=='Random Forest' %}selected{% endif %}>Random Forest</option>
+          <option {% if current_model=='Decision Tree' %}selected{% endif %}>Decision Tree</option>
+          <option {% if current_model=='Logistic Regression' %}selected{% endif %}>Logistic Regression</option>
         </select>
-      </div>
 
-      <div id="hp-rf" class="hp">
-        <div class="row"><label>n_estimators</label>
+        <!-- HP RF -->
+        <div id="hp-rf" class="hp">
+          <label>n_estimators</label>
           <select name="n_estimators">
-            <option>400</option><option>800</option><option selected>1200</option><option>1600</option>
+            {% for v in [400,800,1200,1600] %}
+              <option {% if current_cfg and current_cfg.params.n_estimators==v %}selected{% endif %}>{{ v }}</option>
+            {% endfor %}
           </select>
-        </div>
-        <div class="row"><label>max_depth</label>
-          <select name="max_depth">
-            <option>10</option><option selected>20</option><option>30</option><option>40</option>
-          </select>
-        </div>
-        <div class="row"><label>min_samples_split</label>
-          <select name="min_samples_split">
-            <option>5</option><option selected>10</option><option>15</option><option>20</option>
-          </select>
-        </div>
-        <div class="row"><label>random_state</label>
-          <select name="random_state">
-            <option>10</option><option>20</option><option>30</option><option selected>42</option>
-          </select>
-        </div>
-      </div>
 
-      <div id="hp-dt" class="hp" style="display:none;">
-        <div class="row"><label>max_depth</label>
+          <label>max_depth</label>
           <select name="max_depth">
-            <option>5</option><option>8</option><option selected>11</option><option>14</option>
+            {% for v in [10,20,30,40] %}
+              <option {% if current_cfg and current_cfg.params.max_depth==v %}selected{% endif %}>{{ v }}</option>
+            {% endfor %}
           </select>
-        </div>
-        <div class="row"><label>min_samples_split</label>
+
+          <label>min_samples_split</label>
           <select name="min_samples_split">
-            <option>5</option><option selected>10</option><option>15</option><option>20</option>
+            {% for v in [5,10,15,20] %}
+              <option {% if current_cfg and current_cfg.params.min_samples_split==v %}selected{% endif %}>{{ v }}</option>
+            {% endfor %}
+          </select>
+
+          <label>random_state</label>
+          <select name="random_state">
+            {% for v in [10,20,30,42] %}
+              <option {% if current_cfg and current_cfg.params.random_state==v %}selected{% endif %}>{{ v }}</option>
+            {% endfor %}
           </select>
         </div>
-        <div class="row"><label>min_samples_leaf</label>
+
+        <!-- HP DT -->
+        <div id="hp-dt" class="hp" style="display:none;">
+          <label>max_depth</label>
+          <select name="max_depth">
+            {% for v in [5,8,11,14] %}
+              <option {% if current_cfg and current_cfg.params.max_depth==v %}selected{% endif %}>{{ v }}</option>
+            {% endfor %}
+          </select>
+
+          <label>min_samples_split</label>
+          <select name="min_samples_split">
+            {% for v in [5,10,15,20] %}
+              <option {% if current_cfg and current_cfg.params.min_samples_split==v %}selected{% endif %}>{{ v }}</option>
+            {% endfor %}
+          </select>
+
+          <label>min_samples_leaf</label>
           <select name="min_samples_leaf">
-            <option>2</option><option selected>4</option><option>6</option><option>8</option>
+            {% for v in [2,4,6,8] %}
+              <option {% if current_cfg and current_cfg.params.min_samples_leaf==v %}selected{% endif %}>{{ v }}</option>
+            {% endfor %}
           </select>
-        </div>
-        <div class="row"><label>random_state</label>
-          <select name="random_state">
-            <option>10</option><option>20</option><option>30</option><option selected>42</option>
-          </select>
-        </div>
-      </div>
 
-      <div id="hp-lr" class="hp" style="display:none;">
-        <div class="row"><label>C</label>
+          <label>random_state</label>
+          <select name="random_state">
+            {% for v in [10,20,30,42] %}
+              <option {% if current_cfg and current_cfg.params.random_state==v %}selected{% endif %}>{{ v }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- HP LR -->
+        <div id="hp-lr" class="hp" style="display:none;">
+          <label>C</label>
           <select name="C">
-            <option>0.01</option><option>0.1</option><option selected>1</option><option>10</option><option>100</option>
+            {% for v in [0.01,0.1,1,10,100] %}
+              <option {% if current_cfg and current_cfg.params.C==v %}selected{% endif %}>{{ v }}</option>
+            {% endfor %}
           </select>
-        </div>
-        <div class="row"><label>max_iter</label>
+
+          <label>max_iter</label>
           <select name="max_iter">
-            <option>100</option><option>200</option><option>400</option><option selected>600</option>
+            {% for v in [100,200,400,600] %}
+              <option {% if current_cfg and current_cfg.params.max_iter==v %}selected{% endif %}>{{ v }}</option>
+            {% endfor %}
           </select>
-        </div>
-        <div class="row"><label>random_state</label>
+
+          <label>random_state</label>
           <select name="random_state">
-            <option>10</option><option>20</option><option>30</option><option selected>42</option>
+            {% for v in [10,20,30,42] %}
+              <option {% if current_cfg and current_cfg.params.random_state==v %}selected{% endif %}>{{ v }}</option>
+            {% endfor %}
           </select>
         </div>
-      </div>
 
-      {% for key in features %}
-      <div class="row">
-        <label for="{{ key }}">{{ labels[key] }}</label>
-        <input type="number" step="any" name="{{ key }}" id="{{ key }}" required placeholder="0.0">
-      </div>
-      {% endfor %}
+        <label style="margin-top:8px;">Incluir mis datos añadidos</label>
+        <input type="checkbox" name="use_user_data" {% if current_cfg and current_cfg.use_user_data %}checked{% endif %}>
 
-      <div class="row">
-        <label>Incluir mis datos añadidos</label>
-        <input type="checkbox" name="use_user_data">
-      </div>
-      <button type="submit" class="btn">Predecir</button>
-    </form>
+        <button type="submit" class="btn" style="margin-top:10px;">Entrenar</button>
+      </form>
+
+      <section class="card muted inner">
+        <h3>Estado del modelo</h3>
+        {% if status %}
+          <p><small>{{ status.model_name }} · key: <code>{{ status.key }}</code></small></p>
+          <div class="bars">
+            <div class="bar"><span>Accuracy</span><div class="bar-track"><div class="bar-fill" style="width: {{ (status.accuracy*100)|round(1) }}%"></div></div><span>{{ (status.accuracy*100)|round(2) }}%</span></div>
+            <div class="bar"><span>F1 Macro</span><div class="bar-track"><div class="bar-fill" style="width: {{ (status.f1_macro*100)|round(1) }}%"></div></div><span>{{ (status.f1_macro*100)|round(2) }}%</span></div>
+            <div class="bar"><span>Balanced Acc.</span><div class="bar-track"><div class="bar-fill" style="width: {{ (status.balanced_accuracy*100)|round(1) }}%"></div></div><span>{{ (status.balanced_accuracy*100)|round(2) }}%</span></div>
+          </div>
+        {% else %}
+          <p class="muted">Entrena un modelo para ver métricas aquí.</p>
+        {% endif %}
+      </section>
+    </div>
+
+    <!-- Columna derecha: Predicción -->
+    <div>
+      <h2>Predecir (usa el último modelo entrenado)</h2>
+      <form action="{{ url_for('main.predict_experto') }}" method="post" class="grid-form">
+        {% for key in features %}
+        <div class="row">
+          <label for="{{ key }}">{{ labels[key] }}</label>
+          <input type="number" step="any" name="{{ key }}" id="{{ key }}" required placeholder="0.0">
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn">Predecir</button>
+      </form>
+      {% if status %}
+      <p class="muted" style="margin-top:8px;"><small>Modelo actual: {{ status.model_name }} · Accuracy {{ (status.accuracy*100)|round(2) }}%</small></p>
+      {% endif %}
+    </div>
   </section>
 
   <script>
     function toggleHP() { 
       const m = document.getElementById('modelo').value;
-      document.getElementById('hp-rf').style.display = (m==='Random Forest')?'contents':'none';
-      document.getElementById('hp-dt').style.display = (m==='Decision Tree')?'contents':'none';
-      document.getElementById('hp-lr').style.display = (m==='Logistic Regression')?'contents':'none';
+      document.getElementById('hp-rf').style.display = (m==='Random Forest')?'block':'none';
+      document.getElementById('hp-dt').style.display = (m==='Decision Tree')?'block':'none';
+      document.getElementById('hp-lr').style.display = (m==='Logistic Regression')?'block':'none';
     }
     window.addEventListener('DOMContentLoaded', toggleHP);
   </script>
-
-  <section class="card muted">
-    <h3>Tus datos</h3>
-    <form action="{{ url_for('main.clear_my_data') }}" method="post" onsubmit="return confirm('¿Eliminar todas tus muestras?');">
-      <input type="hidden" name="mode" value="experto">
-      <button class="btn warn" type="submit">Eliminar mis datos añadidos</button>
-    </form>
-  </section>
 {% endblock %}

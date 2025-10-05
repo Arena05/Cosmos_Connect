@@ -40,3 +40,13 @@ input, select { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1p
 .kv td { padding: 8px 10px; border-bottom: 1px solid #202642; }
 .kv tr:last-child td { border-bottom: 0; }
 .muted { opacity: .95; }
+/* Two-column expert layout */
+.grid-2 { display:grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+@media (max-width: 900px) {
+  .grid-2 { grid-template-columns: 1fr; }
+  #hp-rf, #hp-dt, #hp-lr { display: block !important; }
+}
+.card.inner { margin-top: 12px; }
+.table-wrap { overflow:auto; }
+.kv th { text-align:left; border-bottom: 1px solid #202642; padding: 8px 10px; }
+
