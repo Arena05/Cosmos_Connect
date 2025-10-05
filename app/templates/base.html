@@ -12,7 +12,6 @@
       <div class="right">
         {% if current_user.is_authenticated %}
           <div class="mode-switch">
-            <a href="{{ url_for('main.mis_datos') }}" class="chip {% if request.endpoint=='main.mis_datos' %}active{% endif %}">Mis datos</a>
             <a href="{{ url_for('main.novato') }}" class="chip {% if request.endpoint=='main.novato' %}active{% endif %}">Novato</a>
             <a href="{{ url_for('main.experto') }}" class="chip {% if request.endpoint=='main.experto' %}active{% endif %}">Experto</a>
           </div>
