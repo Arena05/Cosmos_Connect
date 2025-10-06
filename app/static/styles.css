@@ -44,11 +44,31 @@
 *{ box-sizing: border-box; }
 
 /* ==============================
-   2) Fondo espacial con “nebulosas”
+   2) Fondo espacial con planetas texturizados
    ============================== */
-html,body{ height:100%; }
-body{
-  margin:0;
+:root {
+  --bg-0: #0a0e17;
+  --bg-1: #1a1f2e;
+  --text: #e0e0e0;
+  --nebula-a: rgba(193, 68, 14, 0.15);
+  --nebula-b: rgba(0, 100, 140, 0.12);
+  --nebula-c: rgba(140, 45, 10, 0.1);
+  --mars-base: #c1440e;
+  --mars-shadow: #8c2d0a;
+  --mars-highlight: #d45a12;
+  --mars-crater: #a8370c;
+  --mars-crater-dark: #7a2408;
+  --moon-base: #c0c0c0;
+  --moon-shadow: #8a8a8a;
+  --moon-highlight: #e0e0e0;
+  --moon-crater: #a0a0a0;
+  --moon-crater-dark: #7a7a7a;
+}
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
   font-family: "Inter", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial;
   color: var(--text);
   background:
@@ -57,57 +77,295 @@ body{
     radial-gradient(900px 600px at 50% 120%, var(--nebula-c) 0%, transparent 50%),
     linear-gradient(180deg, var(--bg-0), var(--bg-1) 60%);
   overflow-x: hidden;
+  position: relative;
 }
 
-/* Capa de estrellas estáticas */
-body::before{
-  content:"";
-  position: fixed; inset:0; pointer-events:none;
+/* Capa de estrellas MUY densa */
+body::before {
+  content: "";
+  position: fixed; 
+  inset: 0; 
+  pointer-events: none;
   background:
-    radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,.8), transparent 60%),
-    radial-gradient(1px 1px at 28% 12%, rgba(255,255,255,.6), transparent 60%),
-    radial-gradient(1px 1px at 36% 72%, rgba(255,255,255,.7), transparent 60%),
-    radial-gradient(1px 1px at 64% 28%, rgba(255,255,255,.5), transparent 60%),
-    radial-gradient(1px 1px at 82% 58%, rgba(255,255,255,.6), transparent 60%),
-    radial-gradient(1px 1px at 92% 22%, rgba(255,255,255,.5), transparent 60%);
-  opacity:.28;
-  z-index:0;
+    /* Estrellas grandes y brillantes */
+    radial-gradient(2px 2px at 5% 10%, rgba(255,255,255,.9) 30%, transparent 70%),
+    radial-gradient(1.8px 1.8px at 12% 25%, rgba(255,255,255,.8) 30%, transparent 70%),
+    radial-gradient(1.5px 1.5px at 8% 40%, rgba(255,255,255,.7) 30%, transparent 70%),
+    radial-gradient(1.2px 1.2px at 15% 55%, rgba(255,255,255,.9) 30%, transparent 70%),
+    radial-gradient(1.7px 1.7px at 3% 70%, rgba(255,255,255,.6) 30%, transparent 70%),
+    radial-gradient(1.4px 1.4px at 18% 85%, rgba(255,255,255,.8) 30%, transparent 70%),
+    
+    /* Más estrellas - sector izquierdo */
+    radial-gradient(1px 1px at 2% 15%, rgba(255,255,255,.7) 30%, transparent 70%),
+    radial-gradient(0.8px 0.8px at 7% 30%, rgba(255,255,255,.5) 30%, transparent 70%),
+    radial-gradient(1.1px 1.1px at 4% 45%, rgba(255,255,255,.6) 30%, transparent 70%),
+    radial-gradient(0.9px 0.9px at 11% 60%, rgba(255,255,255,.4) 30%, transparent 70%),
+    radial-gradient(1.3px 1.3px at 1% 75%, rgba(255,255,255,.7) 30%, transparent 70%),
+    radial-gradient(0.7px 0.7px at 9% 90%, rgba(255,255,255,.5) 30%, transparent 70%),
+    
+    /* Estrellas - sector central */
+    radial-gradient(1.2px 1.2px at 25% 8%, rgba(255,255,255,.8) 30%, transparent 70%),
+    radial-gradient(0.9px 0.9px at 35% 22%, rgba(255,255,255,.6) 30%, transparent 70%),
+    radial-gradient(1.5px 1.5px at 45% 35%, rgba(255,255,255,.7) 30%, transparent 70%),
+    radial-gradient(1px 1px at 55% 48%, rgba(255,255,255,.5) 30%, transparent 70%),
+    radial-gradient(1.3px 1.3px at 65% 62%, rgba(255,255,255,.8) 30%, transparent 70%),
+    radial-gradient(0.8px 0.8px at 75% 78%, rgba(255,255,255,.4) 30%, transparent 70%),
+    radial-gradient(1.4px 1.4px at 85% 92%, rgba(255,255,255,.6) 30%, transparent 70%),
+    
+    /* Más estrellas centrales */
+    radial-gradient(1.1px 1.1px at 22% 15%, rgba(255,255,255,.5) 30%, transparent 70%),
+    radial-gradient(0.7px 0.7px at 38% 28%, rgba(255,255,255,.7) 30%, transparent 70%),
+    radial-gradient(1.6px 1.6px at 52% 42%, rgba(255,255,255,.9) 30%, transparent 70%),
+    radial-gradient(0.9px 0.9px at 68% 58%, rgba(255,255,255,.6) 30%, transparent 70%),
+    radial-gradient(1.2px 1.2px at 82% 72%, rgba(255,255,255,.8) 30%, transparent 70%),
+    
+    /* Estrellas - sector derecho */
+    radial-gradient(1.3px 1.3px at 88% 12%, rgba(255,255,255,.7) 30%, transparent 70%),
+    radial-gradient(0.8px 0.8px at 92% 28%, rgba(255,255,255,.5) 30%, transparent 70%),
+    radial-gradient(1.5px 1.5px at 96% 45%, rgba(255,255,255,.8) 30%, transparent 70%),
+    radial-gradient(1px 1px at 98% 60%, rgba(255,255,255,.6) 30%, transparent 70%),
+    radial-gradient(1.4px 1.4px at 94% 75%, rgba(255,255,255,.7) 30%, transparent 70%),
+    radial-gradient(0.9px 0.9px at 90% 88%, rgba(255,255,255,.5) 30%, transparent 70%),
+    
+    /* Estrellas pequeñas adicionales */
+    radial-gradient(0.5px 0.5px at 10% 5%, rgba(255,255,255,.4) 30%, transparent 70%),
+    radial-gradient(0.6px 0.6px at 20% 18%, rgba(255,255,255,.3) 30%, transparent 70%),
+    radial-gradient(0.4px 0.4px at 30% 32%, rgba(255,255,255,.5) 30%, transparent 70%),
+    radial-gradient(0.7px 0.7px at 40% 47%, rgba(255,255,255,.4) 30%, transparent 70%),
+    radial-gradient(0.5px 0.5px at 50% 63%, rgba(255,255,255,.6) 30%, transparent 70%),
+    radial-gradient(0.6px 0.6px at 60% 79%, rgba(255,255,255,.3) 30%, transparent 70%),
+    radial-gradient(0.4px 0.4px at 70% 95%, rgba(255,255,255,.5) 30%, transparent 70%),
+    radial-gradient(0.7px 0.7px at 80% 10%, rgba(255,255,255,.4) 30%, transparent 70%),
+    radial-gradient(0.5px 0.5px at 90% 26%, rgba(255,255,255,.6) 30%, transparent 70%),
+    
+    /* Aún más estrellas pequeñas */
+    radial-gradient(0.4px 0.4px at 5% 50%, rgba(255,255,255,.4) 30%, transparent 70%),
+    radial-gradient(0.6px 0.6px at 15% 65%, rgba(255,255,255,.5) 30%, transparent 70%),
+    radial-gradient(0.5px 0.5px at 25% 80%, rgba(255,255,255,.3) 30%, transparent 70%),
+    radial-gradient(0.4px 0.4px at 35% 95%, rgba(255,255,255,.4) 30%, transparent 70%),
+    radial-gradient(0.7px 0.7px at 45% 15%, rgba(255,255,255,.6) 30%, transparent 70%),
+    radial-gradient(0.5px 0.5px at 55% 35%, rgba(255,255,255,.4) 30%, transparent 70%),
+    radial-gradient(0.6px 0.6px at 65% 55%, rgba(255,255,255,.5) 30%, transparent 70%),
+    radial-gradient(0.4px 0.4px at 75% 75%, rgba(255,255,255,.3) 30%, transparent 70%),
+    radial-gradient(0.7px 0.7px at 85% 95%, rgba(255,255,255,.4) 30%, transparent 70%),
+    radial-gradient(0.5px 0.5px at 95% 20%, rgba(255,255,255,.6) 30%, transparent 70%);
+    
+  opacity: .4;
+  z-index: 0;
+  animation: starTwinkle 8s ease-in-out infinite;
 }
 
-/* Planeta con anillos (puro CSS) */
-body::after{
-  content:"";
+/* Planeta Marte con textura mejorada y más cráteres */
+body::after {
+  content: "";
   position: fixed;
-  right:-220px; top:-160px;
-  width:520px; height:520px;
-  border-radius:50%;
-  background:
-    radial-gradient(closest-side, rgba(0,225,255,.25), transparent 60%),
-    radial-gradient(circle at 60% 40%, rgba(154,107,255,.35), transparent 60%),
-    radial-gradient(circle at 45% 55%, rgba(255,255,255,.08), transparent 60%);
+  right: -120px; 
+  top: 15%;
+  width: 380px; 
+  height: 380px;
+  border-radius: 50%;
+  background: 
+    /* Base del planeta con textura mejorada */
+    radial-gradient(circle at 30% 30%, var(--mars-highlight) 0%, var(--mars-base) 25%, var(--mars-shadow) 70%),
+    
+    /* Textura de superficie con variaciones de color */
+    radial-gradient(circle at 20% 40%, rgba(180, 60, 10, 0.4) 0%, transparent 50%),
+    radial-gradient(circle at 70% 60%, rgba(160, 50, 8, 0.3) 0%, transparent 40%),
+    radial-gradient(circle at 50% 20%, rgba(200, 70, 15, 0.5) 0%, transparent 45%),
+    
+    /* Cráteres principales - más realistas con sombras */
+    radial-gradient(circle at 65% 25%, transparent 15px, var(--mars-crater-dark) 16px, var(--mars-crater) 18px, transparent 20px),
+    radial-gradient(circle at 40% 60%, transparent 12px, var(--mars-crater-dark) 13px, var(--mars-crater) 15px, transparent 17px),
+    radial-gradient(circle at 75% 70%, transparent 18px, var(--mars-crater-dark) 19px, var(--mars-crater) 22px, transparent 24px),
+    radial-gradient(circle at 25% 45%, transparent 10px, var(--mars-crater-dark) 11px, var(--mars-crater) 13px, transparent 15px),
+    radial-gradient(circle at 60% 50%, transparent 14px, var(--mars-crater-dark) 15px, var(--mars-crater) 17px, transparent 19px),
+    
+    /* Nuevos cráteres adicionales */
+    radial-gradient(circle at 35% 20%, transparent 8px, var(--mars-crater-dark) 9px, var(--mars-crater) 11px, transparent 13px),
+    radial-gradient(circle at 80% 40%, transparent 16px, var(--mars-crater-dark) 17px, var(--mars-crater) 20px, transparent 22px),
+    radial-gradient(circle at 15% 70%, transparent 11px, var(--mars-crater-dark) 12px, var(--mars-crater) 14px, transparent 16px),
+    radial-gradient(circle at 50% 80%, transparent 9px, var(--mars-crater-dark) 10px, var(--mars-crater) 12px, transparent 14px),
+    radial-gradient(circle at 70% 15%, transparent 13px, var(--mars-crater-dark) 14px, var(--mars-crater) 16px, transparent 18px),
+    
+    /* Efectos de relieve */
+    radial-gradient(circle at 10% 25%, rgba(210, 80, 20, 0.3) 0%, transparent 25px),
+    radial-gradient(circle at 85% 55%, rgba(170, 55, 12, 0.4) 0%, transparent 30px);
+    
   box-shadow:
-    inset -40px -60px 120px rgba(0,0,0,.45),
-    0 0 80px rgba(154,107,255,.20);
-  filter: blur(.4px);
-  z-index:0;
-}
-@media (max-width: 960px){
-  body::after{ display:none; }
+    inset -25px -35px 60px rgba(0, 0, 0, 0.7),
+    inset 15px 15px 30px rgba(210, 80, 20, 0.2),
+    0 0 40px rgba(193, 68, 14, 0.25),
+    0 0 80px rgba(193, 68, 14, 0.15);
+  filter: blur(0.3px);
+  z-index: 0;
 }
 
-/* Anillos (usamos el header para montarles un pseudo-elemento) */
-.topbar::before{
-  content:"";
-  position: fixed; right:-40px; top:-15px;
-  width:680px; height:680px; pointer-events:none;
-  background:
-    radial-gradient(closest-side, transparent 64%, rgba(154,107,255,.25) 66%, transparent 67%) ,
-    radial-gradient(closest-side, transparent 72%, rgba(0,225,255,.20) 74%, transparent 75%) ,
-    radial-gradient(closest-side, transparent 80%, rgba(255,255,255,.12) 82%, transparent 83%);
-  transform: rotate(-18deg);
-  filter: blur(.3px);
-  z-index:0;
+/* Luna con textura mejorada y más cráteres */
+.topbar::before {
+  content: "";
+  position: fixed; 
+  left: -100px; 
+  top: 10%;
+  width: 280px; 
+  height: 280px; 
+  border-radius: 50%;
+  background: 
+    /* Base de la luna con textura gris mejorada */
+    radial-gradient(circle at 40% 40%, var(--moon-highlight) 0%, var(--moon-base) 30%, var(--moon-shadow) 70%),
+    
+    /* Textura de superficie lunar con variaciones */
+    radial-gradient(circle at 60% 20%, rgba(180, 180, 180, 0.4) 0%, transparent 40%),
+    radial-gradient(circle at 30% 70%, rgba(160, 160, 160, 0.3) 0%, transparent 35%),
+    radial-gradient(circle at 80% 50%, rgba(200, 200, 200, 0.5) 0%, transparent 45%),
+    
+    /* Cráteres lunares característicos - más realistas */
+    radial-gradient(circle at 70% 30%, transparent 20px, var(--moon-crater-dark) 21px, var(--moon-crater) 24px, transparent 26px),
+    radial-gradient(circle at 30% 60%, transparent 15px, var(--moon-crater-dark) 16px, var(--moon-crater) 19px, transparent 21px),
+    radial-gradient(circle at 60% 70%, transparent 25px, var(--moon-crater-dark) 26px, var(--moon-crater) 29px, transparent 31px),
+    radial-gradient(circle at 45% 25%, transparent 12px, var(--moon-crater-dark) 13px, var(--moon-crater) 16px, transparent 18px),
+    radial-gradient(circle at 20% 45%, transparent 18px, var(--moon-crater-dark) 19px, var(--moon-crater) 22px, transparent 24px),
+    radial-gradient(circle at 75% 55%, transparent 14px, var(--moon-crater-dark) 15px, var(--moon-crater) 18px, transparent 20px),
+    
+    /* Nuevos cráteres adicionales para la luna */
+    radial-gradient(circle at 40% 15%, transparent 10px, var(--moon-crater-dark) 11px, var(--moon-crater) 13px, transparent 15px),
+    radial-gradient(circle at 15% 30%, transparent 22px, var(--moon-crater-dark) 23px, var(--moon-crater) 26px, transparent 28px),
+    radial-gradient(circle at 65% 85%, transparent 17px, var(--moon-crater-dark) 18px, var(--moon-crater) 21px, transparent 23px),
+    radial-gradient(circle at 85% 20%, transparent 9px, var(--moon-crater-dark) 10px, var(--moon-crater) 12px, transparent 14px),
+    radial-gradient(circle at 25% 80%, transparent 19px, var(--moon-crater-dark) 20px, var(--moon-crater) 23px, transparent 25px),
+    
+    /* Efectos de relieve lunar */
+    radial-gradient(circle at 10% 20%, rgba(220, 220, 220, 0.3) 0%, transparent 20px),
+    radial-gradient(circle at 90% 65%, rgba(140, 140, 140, 0.4) 0%, transparent 25px);
+    
+  box-shadow:
+    inset -15px -20px 40px rgba(0, 0, 0, 0.6),
+    inset 10px 10px 25px rgba(220, 220, 220, 0.1),
+    0 0 50px rgba(224, 224, 224, 0.3),
+    0 0 30px rgba(224, 224, 224, 0.2);
+  filter: blur(0.2px);
+  z-index: 0;
 }
+
+/* Efecto de atmósfera sutil alrededor del planeta */
+.topbar::after {
+  content: "";
+  position: fixed; 
+  right: -140px; 
+  top: 13%;
+  width: 420px; 
+  height: 420px; 
+  pointer-events: none;
+  border-radius: 50%;
+  background: 
+    radial-gradient(circle at center, 
+      transparent 60%, 
+      rgba(193, 68, 14, 0.08) 65%, 
+      transparent 75%);
+  filter: blur(8px);
+  z-index: 0;
+  animation: atmosphericGlow 12s ease-in-out infinite;
+}
+
+/* Brillo sutil alrededor de la luna */
+body .content::before {
+  content: "";
+  position: fixed;
+  left: -120px;
+  top: 8%;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: 
+    radial-gradient(circle at center,
+      transparent 65%,
+      rgba(224, 224, 224, 0.05) 70%,
+      transparent 80%);
+  filter: blur(6px);
+  z-index: 0;
+  pointer-events: none;
+  animation: moonGlow 15s ease-in-out infinite;
+}
+
+/* Animaciones sutiles */
+@keyframes starTwinkle {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes atmosphericGlow {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.02); }
+}
+
+@keyframes moonGlow {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.03); }
+}
+
+/* Responsive */
+@media (max-width: 960px){
+  body::after { 
+    right: -180px; 
+    top: 10%;
+    width: 300px; 
+    height: 300px; 
+  }
+  
+  .topbar::before {
+    left: -120px;
+    top: 8%;
+    width: 220px;
+    height: 220px;
+  }
+  
+  .topbar::after {
+    right: -200px;
+    top: 8%;
+    width: 340px;
+    height: 340px;
+  }
+  
+  body .content::before {
+    left: -140px;
+    top: 6%;
+    width: 260px;
+    height: 260px;
+  }
+}
+
+@media (max-width: 640px){
+  body::after { 
+    display: none; 
+  }
+  
+  .topbar::before {
+    display: none;
+  }
+  
+  .topbar::after {
+    display: none;
+  }
+  
+  body .content::before {
+    display: none;
+  }
+}
+
+/* --------------------
+   Animaciones
+   -------------------- */
+@keyframes twinkle {
+  0%   { opacity: .12; transform: scale(1) translateY(0); filter: blur(.2px); }
+  50%  { opacity: .36; transform: scale(1.02) translateY(-2px); filter: blur(.6px); }
+  100% { opacity: .18; transform: scale(.98) translateY(1px); filter: blur(.2px); }
+}
+
+@keyframes planet-rotate {
+  0%   { transform: rotate(-8deg) translateZ(0) translateY(0px); }
+  50%  { transform: rotate(-6deg) translateZ(0) translateY(4px); }
+  100% { transform: rotate(-8deg) translateZ(0) translateY(0px); }
+}
+
 
 /* ==============================
    3) Layout General
