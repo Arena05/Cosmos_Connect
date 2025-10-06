@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
   <section class="card grid-2">
-    <!-- Left column: Training -->
+    <!-- Columna izquierda: Entrenamiento -->
     <div>
-      <h2>Train (left panel)</h2>
+  <h2>Train (left panel)</h2>
       <form action="{{ url_for('main.train_experto') }}" method="post" class="vform">
-        <label>Model</label>
+  <label>Model</label>
         <select name="modelo" id="modelo" onchange="toggleHP()" required>
           {% set current_model = (current_cfg.model_name if current_cfg else 'Random Forest') %}
           <option {% if current_model=='Random Forest' %}selected{% endif %}>Random Forest</option>
@@ -13,7 +13,7 @@
           <option {% if current_model=='Logistic Regression' %}selected{% endif %}>Logistic Regression</option>
         </select>
 
-        <!-- RF Hyperparameters -->
+        <!-- HP RF -->
         <div id="hp-rf" class="hp">
           <label>n_estimators</label>
           <select name="n_estimators">
@@ -44,7 +44,7 @@
           </select>
         </div>
 
-        <!-- DT Hyperparameters -->
+        <!-- HP DT -->
         <div id="hp-dt" class="hp" style="display:none;">
           <label>max_depth</label>
           <select name="max_depth">
@@ -75,7 +75,7 @@
           </select>
         </div>
 
-        <!-- LR Hyperparameters -->
+        <!-- HP LR -->
         <div id="hp-lr" class="hp" style="display:none;">
           <label>C</label>
           <select name="C">
@@ -99,26 +99,26 @@
           </select>
         </div>
 
-        <label style="margin-top:8px;">Include my added data</label>
+  <label style="margin-top:8px;">Include my added data</label>
         <input type="checkbox" name="use_user_data" {% if current_cfg and current_cfg.use_user_data %}checked{% endif %}>
 
-        <button type="submit" class="btn warn" style="margin-top:10px;">Train</button>
+  <button type="submit" class="btn" style="margin-top:10px;">Train</button>
       </form>
 
-      <section class="card">
+      <section class="card muted inner">
         <h3>Model status</h3>
         {% if status %}
           <p><small>{{ status.model_name }} · key: <code>{{ status.key }}</code></small></p>
           <div class="bars">
             <div class="bar"><span>Accuracy</span><div class="bar-track"><div class="bar-fill" style="width: {{ (status.accuracy*100)|round(1) }}%"></div></div><span>{{ (status.accuracy*100)|round(2) }}%</span></div>
             <div class="bar"><span>F1 Macro</span><div class="bar-track"><div class="bar-fill" style="width: {{ (status.f1_macro*100)|round(1) }}%"></div></div><span>{{ (status.f1_macro*100)|round(2) }}%</span></div>
-            <div class="bar"><span>Balanced Accuracy</span><div class="bar-track"><div class="bar-fill" style="width: {{ (status.balanced_accuracy*100)|round(1) }}%"></div></div><span>{{ (status.balanced_accuracy*100)|round(2) }}%</span></div>
+            <div class="bar"><span>Balanced Acc.</span><div class="bar-track"><div class="bar-fill" style="width: {{ (status.balanced_accuracy*100)|round(1) }}%"></div></div><span>{{ (status.balanced_accuracy*100)|round(2) }}%</span></div>
             {% if status.precision_macro is defined %}
             <div class="bar"><span>Precision (macro)</span>
               <div class="bar-track"><div class="bar-fill" style="width: {{ (status.precision_macro*100)|round(1) }}%"></div></div>
               <span>{{ (status.precision_macro*100)|round(2) }}%</span>
             </div>
-            {% endif %}
+            {% endif %}            
           </div>
         {% else %}
           <p class="muted">Train a model to see metrics here.</p>
@@ -136,10 +136,10 @@
           <input type="number" step="any" name="{{ key }}" id="{{ key }}" required placeholder="0.0">
         </div>
         {% endfor %}
-        <button type="submit" class="btn warn">Predict</button>
+  <button type="submit" class="btn">Predict</button>
       </form>
       {% if status %}
-        <p class="muted" style="margin-top:8px;"><small>Current model: {{ status.model_name }} · Accuracy {{ (status.accuracy*100)|round(2) }}%</small></p>
+  <p class="muted" style="margin-top:8px;"><small>Current model: {{ status.model_name }} · Accuracy {{ (status.accuracy*100)|round(2) }}%</small></p>
       {% endif %}
     </div>
   </section>
@@ -154,4 +154,3 @@
     window.addEventListener('DOMContentLoaded', toggleHP);
   </script>
 {% endblock %}
-

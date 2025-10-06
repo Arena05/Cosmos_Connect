@@ -15,16 +15,16 @@ def register():
         email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "").strip()
         if not email or not password:
-            flash("Please enter email and password.", "error")
+            flash("Enter your email address and password.", "error")
             return redirect(url_for("auth.register"))
         if User.query.filter_by(email=email).first():
-            flash("That email is already registered.", "error")
+            flash("That email address is already registered.", "error")
             return redirect(url_for("auth.register"))
         user = User(email=email)
         user.set_password(password)
         db.session.add(user)
         db.session.commit()
-        flash("Registration successful. Please sign in.", "success")
+        flash("Registration successful. Now log in.", "success")
         return redirect(url_for("auth.login"))
     return render_template("auth_register.html")
 
@@ -36,7 +36,7 @@ def login():
         user = User.query.filter_by(email=email).first()
         if user and user.check_password(password):
             login_user(user)
-            flash("Signed in.", "success")
+            flash("Session started.", "success")
             return redirect(url_for("main.novato"))
         flash("Invalid credentials.", "error")
         return redirect(url_for("auth.login"))
@@ -46,5 +46,5 @@ def login():
 def logout():
     if current_user.is_authenticated:
         logout_user()
-    flash("Signed out.", "success")
+    flash("Closed session.", "success")
     return redirect(url_for("auth.login"))
