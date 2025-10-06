@@ -80,9 +80,9 @@ def train_experto():
         metrics = train_and_persist(model_name, params, use_user_data, current_user.id, user_rows_df=user_df)
         session["current_model"] = {"model_name": model_name, "params": params, "use_user_data": use_user_data}
         session["current_status"] = metrics
-        flash(f"Modelo entrenado: {model_name}. Accuracy: {metrics['accuracy']:.2%}", "success")
+        flash(f"Trained model: {model_name}. Accuracy: {metrics['accuracy']:.2%}", "success")
     except Exception as e:
-        flash(f"Error al entrenar: {e}", "error")
+        flash(f"Error while training: {e}", "error")
     return redirect(url_for("main.experto"))
 
 @bp.route("/predict_experto", methods=["POST"])
@@ -98,9 +98,9 @@ def predict_experto():
             session["current_model"] = {"model_name": default_name, "params": default_params, "use_user_data": False}
             session["current_status"] = _
             cfg = session["current_model"]
-            flash("No había un modelo entrenado. Se entrenó un RF por defecto.", "success")
+            flash("There was no trained model. A default RF was trained.", "success")
         except Exception as e:
-            flash(f"No se pudo entrenar un modelo por defecto: {e}", "error")
+            flash(f"A default model could not be trained: {e}", "error")
             return redirect(url_for("main.experto"))
 
     values = [float(request.form.get(k, "").strip()) for k in FEATURES]
@@ -138,10 +138,10 @@ def save_sample():
         sample = UserSample(user_id=current_user.id, disposition=disposition, **row_kwargs)
         db.session.add(sample)
         db.session.commit()
-        flash("Muestra guardada en tu dataset.", "success")
+        flash("Sample saved in your dataset.", "success")
     except Exception as e:
         db.session.rollback()
-        flash(f"No se pudo guardar la muestra: {e}", "error")
+        flash(f"The sample could not be saved: {e}", "error")
     mode = request.form.get("mode", "novato")
     return redirect(url_for(f"main.{mode}"))
 
@@ -161,7 +161,7 @@ def retrain():
         metrics = train_and_persist(model_name, params, use_user_data=True, user_id=current_user.id, user_rows_df=user_df)
         session["current_model"] = {"model_name": model_name, "params": params, "use_user_data": True}
         session["current_status"] = metrics
-        flash(f"Reentrenado con tus datos. Accuracy: {metrics['accuracy']:.2%}", "success")
+        flash(f"Retrained with your data. Accuracy: {metrics['accuracy']:.2%}", "success")
     except Exception as e:
         flash(f"Error al reentrenar: {e}", "error")
     return redirect(url_for(f"main.{mode}"))
@@ -172,9 +172,9 @@ def clear_my_data():
     try:
         UserSample.query.filter_by(user_id=current_user.id).delete()
         db.session.commit()
-        flash("Tus muestras añadidas han sido eliminadas.", "success")
+        flash("Your added samples have been deleted.", "success")
     except Exception as e:
         db.session.rollback()
-        flash(f"No se pudo eliminar: {e}", "error")
+        flash(f"Could not be deleted: {e}", "error")
     mode = request.form.get("mode", "novato")
     return redirect(url_for(f"main.{mode}"))
