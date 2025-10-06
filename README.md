@@ -14,9 +14,12 @@ python run.py
 # http://localhost:5000 → regístrate e ingresa
 ```
 
-## Flujo
-1) Novato por defecto (switch arriba).  
-2) Predice con 11 features.  
-3) En resultados: **Guardar muestra** (se añade a tu dataset); **Reentrenar con mis datos**; **Eliminar mis datos** (en Novato/Experto).
+## Flow
+1) Novice by default (switch up).  
+2) Predicts with 11 features.  
+3) In results: **Save sample** (added to your dataset); **Retrain with my data**; **Delete my data** (in Novice/Expert).
 
 Artefactos: `instance/models/{user_id}/{key}/`. Cache NASA: `instance/cache/nasa_merged.parquet`.
+
+## A web platform for connecting and exploring ideas, hosted on Render.
+https://cosmos-connect-hcok.onrender.com
