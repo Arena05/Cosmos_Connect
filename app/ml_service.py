@@ -8,7 +8,7 @@ import joblib
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, LabelEncoder
-from sklearn.metrics import accuracy_score, f1_score, balanced_accuracy_score, precision_score as sk_precision_score
+from sklearn.metrics import accuracy_score, f1_score, balanced_accuracy_score
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
@@ -20,17 +20,17 @@ FEATURES = [
 ]
 
 UI_LABELS: Dict[str, str] = {
-    "ra": "Right Ascension (°)",
-    "dec": "Declination (°)",
-    "period": "Orbital Period (days)",
-    "duration": "Transit Duration (hours)",
-    "depth": "Transit Depth (ppm)",
-    "planet_radius": "Planetary Radius (R⊕)",
-    "insolation": "Insolation Flux (F⊕)",
-    "equilibrium_temp": "Equilibrium Temperature (K)",
-    "stellar_teff": "Stellar Effective Temperature (K)",
-    "stellar_logg": "Stellar Surface Gravity (cm/s²)",
-    "stellar_radius": "Stellar Radius (R☉)",
+  "ra": "Right Ascension (°)",
+  "dec": "Declination (°)",
+  "period": "Orbital period (days)",
+  "duration": "Transit duration (hours)",
+  "depth": "Transit depth (ppm)",
+  "planet_radius": "Planet radius (R⊕)",
+  "insolation": "Insolation flux (F⊕)",
+  "equilibrium_temp": "Equilibrium temperature (K)",
+  "stellar_teff": "Stellar Tₑff (K)",
+  "stellar_logg": "Stellar log g (cm/s²)",
+  "stellar_radius": "Stellar radius (R☉)"
 }
 
 BASE_DIR = Path(__file__).resolve().parents[1]
@@ -174,12 +174,12 @@ def train_and_persist(model_name: str, params: Dict[str, Any], use_user_data: bo
     model.fit(X_train_s, y_train)
     y_pred = model.predict(X_test_s)
 
-    from sklearn.metrics import accuracy_score, f1_score, balanced_accuracy_score, precision_score
+    from sklearn.metrics import accuracy_score, f1_score, balanced_accuracy_score
     metrics = {
         "accuracy": float(accuracy_score(y_test, y_pred)),
         "f1_macro": float(f1_score(y_test, y_pred, average="macro")),
         "balanced_accuracy": float(balanced_accuracy_score(y_test, y_pred)),
-        "precision_macro": float(sk_precision_score(y_test, y_pred, average="macro", zero_division=0)),        "model_name": model_name,
+        "model_name": model_name,
         "params": params,
         "use_user_data": use_user_data,
         "user_id": user_id,
@@ -208,10 +208,6 @@ def get_model_bundle(model_name: str, params: Dict[str, Any], use_user_data: boo
             "label_encoder": joblib.load(paths["label_encoder"]),
             "meta": metrics,
         }
-        # Normaliza/asegura llaves nuevas para métricas antiguas
-        if metrics is not None:
-            metrics.setdefault("precision_macro", metrics.get("f1_macro", 0.0))
-      
         return bundle, {"trained": True, **metrics}
     except Exception as e:
         return {}, {"trained": False, "error": str(e)}
@@ -234,12 +230,12 @@ def predict_one(bundle: Dict[str, Any], values: list[float]):
     idx = int(np.argmax(proba))
     pred_str = classes[idx]
 
-    name_map = {"CONFIRMED": "Confirmado", "FALSE POSITIVE": "Falso positivo"}
+    name_map = {"CONFIRMED": "Confirmed", "FALSE POSITIVE": "False positive"}
     pred_label = name_map.get(pred_str, pred_str)
 
     proba_map = {
-        "Confirmado": float(proba[classes.index("CONFIRMED")]) if "CONFIRMED" in classes else float(proba[0]),
-        "Falso positivo": float(proba[classes.index("FALSE POSITIVE")]) if "FALSE POSITIVE" in classes else float(proba[1]),
+        "Confirmed": float(proba[classes.index("CONFIRMED")]) if "CONFIRMED" in classes else float(proba[0]),
+        "False positive": float(proba[classes.index("FALSE POSITIVE")]) if "FALSE POSITIVE" in classes else float(proba[1]),
     }
     return pred_label, proba_map
 

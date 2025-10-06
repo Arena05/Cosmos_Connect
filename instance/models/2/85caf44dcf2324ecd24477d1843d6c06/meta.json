@@ -1,0 +1,13 @@
+{
+  "accuracy": 0.8879274824886692,
+  "f1_macro": 0.885982341480939,
+  "balanced_accuracy": 0.8889692408513552,
+  "model_name": "Random Forest",
+  "params": {
+    "n_estimators": 1000,
+    "random_state": 10
+  },
+  "use_user_data": false,
+  "user_id": 2,
+  "key": "85caf44dcf2324ecd24477d1843d6c06"
+}

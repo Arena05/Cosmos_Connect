@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Result · 3D{% endblock %}
+{% block content %}
+<div class="card" style="text-align:center;">
+  <h1>Result</h1>
+  <p class="muted">
+    CONFIRMED: {{ (p_confirmed*100)|round(1) }}% ·
+    CANDIDATE: {{ (p_candidate*100)|round(1) }}% ·
+    FALSE_POSITIVE: {{ (p_fp*100)|round(1) }}%
+  </p>
+
+  {% if can_open %}
+    <a class="btn btn-primary" href="{{ url_for('viz3d.viz3d') }}">Open 3D interface</a>
+  {% else %}
+    <button class="btn" disabled>3D interface (requires ≥ 90% CONFIRMED)</button>
+  {% endif %}
+
+  <div style="margin-top:12px;">
+    <a class="btn" href="{{ url_for('viz3d.viz3d_form') }}">Back</a>
+  </div>
+</div>
+{% endblock %}

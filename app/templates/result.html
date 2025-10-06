@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
   <section class="card">
-  <h2>Result</h2>
-  <p class="prediction">Classification: <strong>{{ pred_label }}</strong></p>
+    <h2>Result</h2>
+    <p class="prediction">Classification: <strong>{{ pred_label }}</strong></p>
     <div class="bars">
       {% for name, p in proba_map.items() %}
         <div class="bar">
@@ -12,11 +12,11 @@
         </div>
       {% endfor %}
     </div>
-    <p><small>Modelo: {{ model_name if model_name else status.model_name }} · Accuracy: {{ "%.2f"|format(status.accuracy * 100) }}%</small></p>
+    <p><small>Model: {{ model_name if model_name else status.model_name }} · Accuracy: {{ "%.2f"|format(status.accuracy * 100) }}%</small></p>
   </section>
 
-  <section class="card muted">
-  <h3>Inputs</h3>
+  <section class="card">
+    <h3>Inputs</h3>
     <table class="kv">
       <tbody>
         {% for k, v in values.items() %}
@@ -32,17 +32,21 @@
         {% for k, v in values.items() %}
           <input type="hidden" name="{{ k }}" value="{{ v }}">
         {% endfor %}
-  <button class="btn" type="submit">Save sample to my dataset</button>
+        <button class="btn" type="submit">Save sample to my dataset</button>
       </form>
-
+      {% if pred_label == "Confirmado" %}
+          <a href="{{ url_for('viz3d.viz3d') }}">Open 3D interface</a>
+      {% else %}
+          <button disabled>3D interface (requires Confirmed)</button>
+      {% endif %}
       <form action="{{ url_for('main.retrain') }}" method="post" style="display:inline-block;">
         <input type="hidden" name="mode" value="{{ mode or 'novato' }}">
         <input type="hidden" name="modelo" value="{{ model_name if model_name else status.model_name }}">
         <input type="hidden" name="params_json" value='{{ params|tojson if params else "{}" }}'>
-  <button class="btn" type="submit">Retrain with my data</button>
+        <button class="btn" type="submit">Retrain with my data</button>
       </form>
 
-  <a href="{{ url_for('main.' + (mode or 'novato')) }}" class="btn">New prediction</a>
+      <a href="{{ url_for('main.' + (mode or 'novato')) }}" class="btn">New prediction</a>
     </div>
   </section>
 {% endblock %}

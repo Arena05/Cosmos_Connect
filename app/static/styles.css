@@ -5,700 +5,205 @@
 
 /* Tipografía (opcional). Si no la quieres, borra esta línea */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
-
-/* ==============================
-   1) Tokens / Paleta de color
-   ============================== */
-:root{
-  /* Fondo cósmico */
-  --bg-0: #05060d;
-  --bg-1: #0a0f1f;
-  --nebula-a: #0d1b4b;
-  --nebula-b: #25104a;
-  --nebula-c: #062936;
-
-  /* Tarjetas y textos */
-  --card: rgba(18, 22, 42, 0.78);
-  --muted: rgba(10, 14, 30, 0.72);
-  --text: #e8f1ff;
-  --subtle: #9db6ff;
-
-  /* Acentos “astro” */
-  --accent: #9a6bff;       /* violeta */
-  --accent-2: #00e1ff;     /* cian */
-  --ok: #57f287;
-  --warn: #ff6b81;
-
-  /* Bordes y halos */
-  --border: rgba(154,107,255,.28);
-  --halo: rgba(0,225,255,.18);
-
-  /* Radios y ritmo */
-  --radius: 16px;
-  --radius-sm: 12px;
-  --pad: 20px;
-  --gap: 18px;
-  --speed: .18s;
-}
-
-*{ box-sizing: border-box; }
-
-/* ==============================
-   2) Fondo espacial con planetas texturizados
-   ============================== */
 :root {
-  --bg-0: #0a0e17;
-  --bg-1: #1a1f2e;
-  --text: #e0e0e0;
-  --nebula-a: rgba(193, 68, 14, 0.15);
-  --nebula-b: rgba(0, 100, 140, 0.12);
-  --nebula-c: rgba(140, 45, 10, 0.1);
-  --mars-base: #c1440e;
-  --mars-shadow: #8c2d0a;
-  --mars-highlight: #d45a12;
-  --mars-crater: #a8370c;
-  --mars-crater-dark: #7a2408;
-  --moon-base: #c0c0c0;
-  --moon-shadow: #8a8a8a;
-  --moon-highlight: #e0e0e0;
-  --moon-crater: #a0a0a0;
-  --moon-crater-dark: #7a7a7a;
+  --bg: #0b0d16;
+  --card: #14182a;
+  --muted: #0f1322;
+  --text: #e6ebff;
+  --accent: #7aa2f7;
+  --ok: #53df83;
+  --warn: #3d2a92;
 }
-
-html, body { height: 100%; }
+* {
+  box-sizing: border-box;
+}
 
 body {
   margin: 0;
-  font-family: "Inter", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial;
+  background: linear-gradient(180deg, var(--bg), #0a0d14 50%, #090b12);
   color: var(--text);
-  background:
-    radial-gradient(1200px 600px at 15% -10%, var(--nebula-a) 0%, transparent 60%),
-    radial-gradient(1000px 500px at 110% 10%, var(--nebula-b) 0%, transparent 55%),
-    radial-gradient(900px 600px at 50% 120%, var(--nebula-c) 0%, transparent 50%),
-    linear-gradient(180deg, var(--bg-0), var(--bg-1) 60%);
-  overflow-x: hidden;
-  position: relative;
 }
 
-/* Capa de estrellas MUY densa */
-body::before {
-  content: "";
-  position: fixed; 
-  inset: 0; 
-  pointer-events: none;
-  background:
-    /* Estrellas grandes y brillantes */
-    radial-gradient(2px 2px at 5% 10%, rgba(255,255,255,.9) 30%, transparent 70%),
-    radial-gradient(1.8px 1.8px at 12% 25%, rgba(255,255,255,.8) 30%, transparent 70%),
-    radial-gradient(1.5px 1.5px at 8% 40%, rgba(255,255,255,.7) 30%, transparent 70%),
-    radial-gradient(1.2px 1.2px at 15% 55%, rgba(255,255,255,.9) 30%, transparent 70%),
-    radial-gradient(1.7px 1.7px at 3% 70%, rgba(255,255,255,.6) 30%, transparent 70%),
-    radial-gradient(1.4px 1.4px at 18% 85%, rgba(255,255,255,.8) 30%, transparent 70%),
-    
-    /* Más estrellas - sector izquierdo */
-    radial-gradient(1px 1px at 2% 15%, rgba(255,255,255,.7) 30%, transparent 70%),
-    radial-gradient(0.8px 0.8px at 7% 30%, rgba(255,255,255,.5) 30%, transparent 70%),
-    radial-gradient(1.1px 1.1px at 4% 45%, rgba(255,255,255,.6) 30%, transparent 70%),
-    radial-gradient(0.9px 0.9px at 11% 60%, rgba(255,255,255,.4) 30%, transparent 70%),
-    radial-gradient(1.3px 1.3px at 1% 75%, rgba(255,255,255,.7) 30%, transparent 70%),
-    radial-gradient(0.7px 0.7px at 9% 90%, rgba(255,255,255,.5) 30%, transparent 70%),
-    
-    /* Estrellas - sector central */
-    radial-gradient(1.2px 1.2px at 25% 8%, rgba(255,255,255,.8) 30%, transparent 70%),
-    radial-gradient(0.9px 0.9px at 35% 22%, rgba(255,255,255,.6) 30%, transparent 70%),
-    radial-gradient(1.5px 1.5px at 45% 35%, rgba(255,255,255,.7) 30%, transparent 70%),
-    radial-gradient(1px 1px at 55% 48%, rgba(255,255,255,.5) 30%, transparent 70%),
-    radial-gradient(1.3px 1.3px at 65% 62%, rgba(255,255,255,.8) 30%, transparent 70%),
-    radial-gradient(0.8px 0.8px at 75% 78%, rgba(255,255,255,.4) 30%, transparent 70%),
-    radial-gradient(1.4px 1.4px at 85% 92%, rgba(255,255,255,.6) 30%, transparent 70%),
-    
-    /* Más estrellas centrales */
-    radial-gradient(1.1px 1.1px at 22% 15%, rgba(255,255,255,.5) 30%, transparent 70%),
-    radial-gradient(0.7px 0.7px at 38% 28%, rgba(255,255,255,.7) 30%, transparent 70%),
-    radial-gradient(1.6px 1.6px at 52% 42%, rgba(255,255,255,.9) 30%, transparent 70%),
-    radial-gradient(0.9px 0.9px at 68% 58%, rgba(255,255,255,.6) 30%, transparent 70%),
-    radial-gradient(1.2px 1.2px at 82% 72%, rgba(255,255,255,.8) 30%, transparent 70%),
-    
-    /* Estrellas - sector derecho */
-    radial-gradient(1.3px 1.3px at 88% 12%, rgba(255,255,255,.7) 30%, transparent 70%),
-    radial-gradient(0.8px 0.8px at 92% 28%, rgba(255,255,255,.5) 30%, transparent 70%),
-    radial-gradient(1.5px 1.5px at 96% 45%, rgba(255,255,255,.8) 30%, transparent 70%),
-    radial-gradient(1px 1px at 98% 60%, rgba(255,255,255,.6) 30%, transparent 70%),
-    radial-gradient(1.4px 1.4px at 94% 75%, rgba(255,255,255,.7) 30%, transparent 70%),
-    radial-gradient(0.9px 0.9px at 90% 88%, rgba(255,255,255,.5) 30%, transparent 70%),
-    
-    /* Estrellas pequeñas adicionales */
-    radial-gradient(0.5px 0.5px at 10% 5%, rgba(255,255,255,.4) 30%, transparent 70%),
-    radial-gradient(0.6px 0.6px at 20% 18%, rgba(255,255,255,.3) 30%, transparent 70%),
-    radial-gradient(0.4px 0.4px at 30% 32%, rgba(255,255,255,.5) 30%, transparent 70%),
-    radial-gradient(0.7px 0.7px at 40% 47%, rgba(255,255,255,.4) 30%, transparent 70%),
-    radial-gradient(0.5px 0.5px at 50% 63%, rgba(255,255,255,.6) 30%, transparent 70%),
-    radial-gradient(0.6px 0.6px at 60% 79%, rgba(255,255,255,.3) 30%, transparent 70%),
-    radial-gradient(0.4px 0.4px at 70% 95%, rgba(255,255,255,.5) 30%, transparent 70%),
-    radial-gradient(0.7px 0.7px at 80% 10%, rgba(255,255,255,.4) 30%, transparent 70%),
-    radial-gradient(0.5px 0.5px at 90% 26%, rgba(255,255,255,.6) 30%, transparent 70%),
-    
-    /* Aún más estrellas pequeñas */
-    radial-gradient(0.4px 0.4px at 5% 50%, rgba(255,255,255,.4) 30%, transparent 70%),
-    radial-gradient(0.6px 0.6px at 15% 65%, rgba(255,255,255,.5) 30%, transparent 70%),
-    radial-gradient(0.5px 0.5px at 25% 80%, rgba(255,255,255,.3) 30%, transparent 70%),
-    radial-gradient(0.4px 0.4px at 35% 95%, rgba(255,255,255,.4) 30%, transparent 70%),
-    radial-gradient(0.7px 0.7px at 45% 15%, rgba(255,255,255,.6) 30%, transparent 70%),
-    radial-gradient(0.5px 0.5px at 55% 35%, rgba(255,255,255,.4) 30%, transparent 70%),
-    radial-gradient(0.6px 0.6px at 65% 55%, rgba(255,255,255,.5) 30%, transparent 70%),
-    radial-gradient(0.4px 0.4px at 75% 75%, rgba(255,255,255,.3) 30%, transparent 70%),
-    radial-gradient(0.7px 0.7px at 85% 95%, rgba(255,255,255,.4) 30%, transparent 70%),
-    radial-gradient(0.5px 0.5px at 95% 20%, rgba(255,255,255,.6) 30%, transparent 70%);
-    
-  opacity: .4;
-  z-index: 0;
-  animation: starTwinkle 8s ease-in-out infinite;
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
 }
 
-/* Planeta Marte con textura mejorada y más cráteres */
-body::after {
-  content: "";
-  position: fixed;
-  right: -120px; 
-  top: 15%;
-  width: 380px; 
-  height: 380px;
-  border-radius: 50%;
-  background: 
-    /* Base del planeta con textura mejorada */
-    radial-gradient(circle at 30% 30%, var(--mars-highlight) 0%, var(--mars-base) 25%, var(--mars-shadow) 70%),
-    
-    /* Textura de superficie con variaciones de color */
-    radial-gradient(circle at 20% 40%, rgba(180, 60, 10, 0.4) 0%, transparent 50%),
-    radial-gradient(circle at 70% 60%, rgba(160, 50, 8, 0.3) 0%, transparent 40%),
-    radial-gradient(circle at 50% 20%, rgba(200, 70, 15, 0.5) 0%, transparent 45%),
-    
-    /* Cráteres principales - más realistas con sombras */
-    radial-gradient(circle at 65% 25%, transparent 15px, var(--mars-crater-dark) 16px, var(--mars-crater) 18px, transparent 20px),
-    radial-gradient(circle at 40% 60%, transparent 12px, var(--mars-crater-dark) 13px, var(--mars-crater) 15px, transparent 17px),
-    radial-gradient(circle at 75% 70%, transparent 18px, var(--mars-crater-dark) 19px, var(--mars-crater) 22px, transparent 24px),
-    radial-gradient(circle at 25% 45%, transparent 10px, var(--mars-crater-dark) 11px, var(--mars-crater) 13px, transparent 15px),
-    radial-gradient(circle at 60% 50%, transparent 14px, var(--mars-crater-dark) 15px, var(--mars-crater) 17px, transparent 19px),
-    
-    /* Nuevos cráteres adicionales */
-    radial-gradient(circle at 35% 20%, transparent 8px, var(--mars-crater-dark) 9px, var(--mars-crater) 11px, transparent 13px),
-    radial-gradient(circle at 80% 40%, transparent 16px, var(--mars-crater-dark) 17px, var(--mars-crater) 20px, transparent 22px),
-    radial-gradient(circle at 15% 70%, transparent 11px, var(--mars-crater-dark) 12px, var(--mars-crater) 14px, transparent 16px),
-    radial-gradient(circle at 50% 80%, transparent 9px, var(--mars-crater-dark) 10px, var(--mars-crater) 12px, transparent 14px),
-    radial-gradient(circle at 70% 15%, transparent 13px, var(--mars-crater-dark) 14px, var(--mars-crater) 16px, transparent 18px),
-    
-    /* Efectos de relieve */
-    radial-gradient(circle at 10% 25%, rgba(210, 80, 20, 0.3) 0%, transparent 25px),
-    radial-gradient(circle at 85% 55%, rgba(170, 55, 12, 0.4) 0%, transparent 30px);
-    
-  box-shadow:
-    inset -25px -35px 60px rgba(0, 0, 0, 0.7),
-    inset 15px 15px 30px rgba(210, 80, 20, 0.2),
-    0 0 40px rgba(193, 68, 14, 0.25),
-    0 0 80px rgba(193, 68, 14, 0.15);
-  filter: blur(0.3px);
-  z-index: 0;
+.brand a {
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 700;
 }
 
-/* Luna con textura mejorada y más cráteres */
-.topbar::before {
-  content: "";
-  position: fixed; 
-  left: -100px; 
-  top: 10%;
-  width: 280px; 
-  height: 280px; 
-  border-radius: 50%;
-  background: 
-    /* Base de la luna con textura gris mejorada */
-    radial-gradient(circle at 40% 40%, var(--moon-highlight) 0%, var(--moon-base) 30%, var(--moon-shadow) 70%),
-    
-    /* Textura de superficie lunar con variaciones */
-    radial-gradient(circle at 60% 20%, rgba(180, 180, 180, 0.4) 0%, transparent 40%),
-    radial-gradient(circle at 30% 70%, rgba(160, 160, 160, 0.3) 0%, transparent 35%),
-    radial-gradient(circle at 80% 50%, rgba(200, 200, 200, 0.5) 0%, transparent 45%),
-    
-    /* Cráteres lunares característicos - más realistas */
-    radial-gradient(circle at 70% 30%, transparent 20px, var(--moon-crater-dark) 21px, var(--moon-crater) 24px, transparent 26px),
-    radial-gradient(circle at 30% 60%, transparent 15px, var(--moon-crater-dark) 16px, var(--moon-crater) 19px, transparent 21px),
-    radial-gradient(circle at 60% 70%, transparent 25px, var(--moon-crater-dark) 26px, var(--moon-crater) 29px, transparent 31px),
-    radial-gradient(circle at 45% 25%, transparent 12px, var(--moon-crater-dark) 13px, var(--moon-crater) 16px, transparent 18px),
-    radial-gradient(circle at 20% 45%, transparent 18px, var(--moon-crater-dark) 19px, var(--moon-crater) 22px, transparent 24px),
-    radial-gradient(circle at 75% 55%, transparent 14px, var(--moon-crater-dark) 15px, var(--moon-crater) 18px, transparent 20px),
-    
-    /* Nuevos cráteres adicionales para la luna */
-    radial-gradient(circle at 40% 15%, transparent 10px, var(--moon-crater-dark) 11px, var(--moon-crater) 13px, transparent 15px),
-    radial-gradient(circle at 15% 30%, transparent 22px, var(--moon-crater-dark) 23px, var(--moon-crater) 26px, transparent 28px),
-    radial-gradient(circle at 65% 85%, transparent 17px, var(--moon-crater-dark) 18px, var(--moon-crater) 21px, transparent 23px),
-    radial-gradient(circle at 85% 20%, transparent 9px, var(--moon-crater-dark) 10px, var(--moon-crater) 12px, transparent 14px),
-    radial-gradient(circle at 25% 80%, transparent 19px, var(--moon-crater-dark) 20px, var(--moon-crater) 23px, transparent 25px),
-    
-    /* Efectos de relieve lunar */
-    radial-gradient(circle at 10% 20%, rgba(220, 220, 220, 0.3) 0%, transparent 20px),
-    radial-gradient(circle at 90% 65%, rgba(140, 140, 140, 0.4) 0%, transparent 25px);
-    
-  box-shadow:
-    inset -15px -20px 40px rgba(0, 0, 0, 0.6),
-    inset 10px 10px 25px rgba(220, 220, 220, 0.1),
-    0 0 50px rgba(224, 224, 224, 0.3),
-    0 0 30px rgba(224, 224, 224, 0.2);
-  filter: blur(0.2px);
-  z-index: 0;
+.mode-switch .chip {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid #2b355b;
+  margin-right: 6px;
+  color: var(--text);
+  text-decoration: none;
 }
 
-/* Efecto de atmósfera sutil alrededor del planeta */
-.topbar::after {
-  content: "";
-  position: fixed; 
-  right: -140px; 
-  top: 13%;
-  width: 420px; 
-  height: 420px; 
-  pointer-events: none;
-  border-radius: 50%;
-  background: 
-    radial-gradient(circle at center, 
-      transparent 60%, 
-      rgba(193, 68, 14, 0.08) 65%, 
-      transparent 75%);
-  filter: blur(8px);
-  z-index: 0;
-  animation: atmosphericGlow 12s ease-in-out infinite;
+.mode-switch .chip.active {
+  background: var(--accent);
+  color: #0b0d16;
+  border-color: transparent;
 }
 
-/* Brillo sutil alrededor de la luna */
-body .content::before {
-  content: "";
-  position: fixed;
-  left: -120px;
-  top: 8%;
-  width: 320px;
-  height: 320px;
-  border-radius: 50%;
-  background: 
-    radial-gradient(circle at center,
-      transparent 65%,
-      rgba(224, 224, 224, 0.05) 70%,
-      transparent 80%);
-  filter: blur(6px);
-  z-index: 0;
-  pointer-events: none;
-  animation: moonGlow 15s ease-in-out infinite;
+.user {
+  display: flex;
+  gap: 10px;
+  align-items: center;
 }
 
-/* Animaciones sutiles */
-@keyframes starTwinkle {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.7; }
+.user .email {
+  opacity: .9;
+  font-size: .9rem;
 }
 
-@keyframes atmosphericGlow {
-  0%, 100% { opacity: 0.6; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.02); }
+main {
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
-@keyframes moonGlow {
-  0%, 100% { opacity: 0.4; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(1.03); }
-}
-
-/* Responsive */
-@media (max-width: 960px){
-  body::after { 
-    right: -180px; 
-    top: 10%;
-    width: 300px; 
-    height: 300px; 
-  }
-  
-  .topbar::before {
-    left: -120px;
-    top: 8%;
-    width: 220px;
-    height: 220px;
-  }
-  
-  .topbar::after {
-    right: -200px;
-    top: 8%;
-    width: 340px;
-    height: 340px;
-  }
-  
-  body .content::before {
-    left: -140px;
-    top: 6%;
-    width: 260px;
-    height: 260px;
-  }
-}
-
-@media (max-width: 640px){
-  body::after { 
-    display: none; 
-  }
-  
-  .topbar::before {
-    display: none;
-  }
-  
-  .topbar::after {
-    display: none;
-  }
-  
-  body .content::before {
-    display: none;
-  }
-}
-
-/* --------------------
-   Animaciones
-   -------------------- */
-@keyframes twinkle {
-  0%   { opacity: .12; transform: scale(1) translateY(0); filter: blur(.2px); }
-  50%  { opacity: .36; transform: scale(1.02) translateY(-2px); filter: blur(.6px); }
-  100% { opacity: .18; transform: scale(.98) translateY(1px); filter: blur(.2px); }
-}
-
-@keyframes planet-rotate {
-  0%   { transform: rotate(-8deg) translateZ(0) translateY(0px); }
-  50%  { transform: rotate(-6deg) translateZ(0) translateY(4px); }
-  100% { transform: rotate(-8deg) translateZ(0) translateY(0px); }
-}
-
-
-/* ==============================
-   3) Layout General
-   ============================== */
-main{ max-width: 1024px; margin:0 auto; padding: var(--pad); position: relative; z-index:1; }
-
-.topbar{
-  display:flex; align-items:center; justify-content:space-between; padding: 12px 16px;
-  position: relative; z-index:2;
-}
-.brand a{
-  color: var(--text); text-decoration:none; font-weight:800; letter-spacing:.3px;
-  text-shadow: 0 0 16px rgba(255,255,255,.05);
-}
-
-.mode-switch .chip{
-  display:inline-flex; align-items:center; gap:8px;
-  padding:8px 12px; margin-right:6px;
-  border-radius: 999px; text-decoration:none; color: var(--text);
-  border:1px solid var(--border);
-  background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);
-  transition: transform var(--speed) ease, box-shadow var(--speed) ease, border-color var(--speed) ease, filter var(--speed) ease;
-}
-.mode-switch .chip:hover{
-  transform: translateY(-1px);
-  border-color: rgba(154,107,255,.45);
-  box-shadow: 0 10px 28px rgba(0,0,0,.40);
-}
-.mode-switch .chip.active{
-  background: radial-gradient(240px 90px at 20% 0, rgba(154,107,255,.3), transparent 60%),
-              linear-gradient(180deg, rgba(154,107,255,.24), rgba(154,107,255,.12));
-  color:#0b0d16; border-color: transparent;
-  box-shadow: 0 8px 22px rgba(154,107,255,.32);
-}
-
-.user{ display:flex; gap:10px; align-items:center; }
-.user .email{ color: var(--subtle); opacity:.92; font-size:.9rem; }
-
-/* ==============================
-   4) Tarjetas / vidrio espacial
-   ============================== */
-.card{
-  position: relative;
-  background: var(--card);
-  border-radius: var(--radius);
-  padding: var(--pad);
+.card {
+  background: rgba(0, 0, 0, .7);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .7);
   margin-bottom: 18px;
-  border: 1px solid var(--border);
-  box-shadow:
-    0 18px 60px rgba(0,0,0,.48),
-    0 0 0 1px rgba(255,255,255,.02) inset;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-}
-.card.muted{ background: var(--muted); }
-
-/* halo orbital decorativo */
-.card::after{
-  content:"";
-  position:absolute; inset:-1px;
-  border-radius: inherit; pointer-events:none;
-  background:
-    conic-gradient(from 120deg, rgba(154,107,255,.16), rgba(0,225,255,.12), transparent 60% 100%);
-  filter: blur(18px);
-  opacity:.55;
-  mask: radial-gradient(circle at 65% -40%, transparent 0 60%, #000 62%);
 }
 
-/* ==============================
-   5) Formularios
-   ============================== */
-.grid-form{ display:grid; grid-template-columns: 1fr 1fr; gap: 12px 18px; }
-.row{ display: contents; }
-label{ align-self:center; color: var(--subtle); font-size: .95rem; }
-
-input,select{
-  width:100%;
-  padding: 12px 12px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-  color: var(--text);
-  outline: none;
-  transition: border-color var(--speed) ease, box-shadow var(--speed) ease, transform var(--speed) ease;
-}
-input:focus,select:focus{
-  border-color: rgba(0,225,255,.72);
-  box-shadow: 0 0 0 4px var(--halo);
-  transform: translateY(-1px);
+.card.muted {
+  background: var(--muted);
 }
 
-.vform{ display:flex; flex-direction:column; gap:10px; }
-
-/* ====== Panel de hiperparámetros (Experto) ====== */
-.hp{
-  background: rgba(12,16,32,.55);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 12px;
+.grid-form {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px 14px;
-  margin-top: 8px;
+  gap: 12px 18px;
 }
 
-.hp label{
-  color: var(--subtle);
+.row {
+  display: contents;
+}
+
+label {
   align-self: center;
-  font-size: .95rem;
 }
 
-/* Select oscuro coherente con el tema */
-.hp select{
+input,
+select {
   width: 100%;
   padding: 10px 12px;
   border-radius: 10px;
-  border: 1px solid var(--border);
-  background: #0c1020;                 /* fondo del select cerrado */
-  color: var(--text);                   /* texto claro */
-  outline: none;
-  transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
-  appearance: none;                     /* quitamos flecha nativa para poder theme-arla */
-  background-image:
-    linear-gradient(45deg, transparent 50%, var(--subtle) 50%),
-    linear-gradient(135deg, var(--subtle) 50%, transparent 50%),
-    linear-gradient(to right, transparent, transparent); /* fallback */
-  background-position:
-    calc(100% - 22px) center,
-    calc(100% - 16px) center,
-    100% 0;
-  background-size: 6px 6px, 6px 6px, 2.5em 100%;
-  background-repeat: no-repeat;
-}
-
-.hp select:focus{
-  border-color: rgba(0,225,255,.72);
-  box-shadow: 0 0 0 4px var(--halo);
-  transform: translateY(-1px);
-}
-
-/* Menú desplegable (lista de opciones) oscuro */
-.hp select option{
-  background: #0c1020;   /* fondo del dropdown */
-  color: var(--text);     /* texto claro */
-}
-
-/* Safari / algunos UA: sugerir esquema oscuro para controles nativos */
-@supports (color-scheme: light dark){
-  .hp select, .hp select option{
-    color-scheme: dark;
-  }
-}
-
-/* Responsivo: una sola columna en pantallas estrechas */
-@media (max-width: 680px){
-  .hp{ grid-template-columns: 1fr; }
-}
-
-/* ====== Selector del modelo ML (Random Forest / Decision Tree / Logistic Regression) ====== */
-#modelo{
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: #0c1020;                 /* fondo del select cerrado */
-  color: var(--text);                   /* texto claro */
-  outline: none;
-  transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
-
-  /* quitar flecha nativa y dibujar una "custom" con CSS para tema oscuro */
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  background-image:
-    linear-gradient(45deg, transparent 50%, var(--subtle) 50%),
-    linear-gradient(135deg, var(--subtle) 50%, transparent 50%),
-    linear-gradient(to right, transparent, transparent); /* fallback */
-  background-position:
-    calc(100% - 22px) center,
-    calc(100% - 16px) center,
-    100% 0;
-  background-size: 6px 6px, 6px 6px, 2.5em 100%;
-  background-repeat: no-repeat;
-}
-
-#modelo:focus{
-  border-color: rgba(0,225,255,.72);
-  box-shadow: 0 0 0 4px var(--halo);
-  transform: translateY(-1px);
-}
-
-/* Menú desplegable (lista de opciones) oscuro */
-#modelo option{
+  border: 1px solid #2b355b;
   background: #0c1020;
   color: var(--text);
 }
 
-/* Ocultar la flecha nativa en IE/Edge heredados */
-#modelo::-ms-expand { display: none; }
-
-/* Sugerir esquema oscuro a motores que lo soportan (Safari, etc.) */
-@supports (color-scheme: light dark){
-  #modelo, #modelo option { color-scheme: dark; }
+.vform {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-
-/* Botones */
-.btn{
-  display:inline-block; padding: 12px 16px; border:0;
-  border-radius: 12px; font-weight: 800; letter-spacing:.2px;
-  color: #0b0d16; text-decoration:none; cursor:pointer;
-  background: linear-gradient(180deg, var(--accent), #6a56e6);
-  box-shadow: 0 12px 28px rgba(154,107,255,.35), inset 0 0 0 1px rgba(255,255,255,.22);
-  transition: transform var(--speed) ease, box-shadow var(--speed) ease, filter var(--speed) ease;
+.btn {
+  background: #202a53;
+  display: inline-block;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--accent);
+  color: #0b0d16;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
 }
-.btn:hover{ transform: translateY(-2px); box-shadow: 0 18px 34px rgba(154,107,255,.45); filter: saturate(1.05); }
-.btn.small{ padding:8px 12px; font-size:.88rem; }
-.btn.warn{
-  background: linear-gradient(180deg, var(--warn), #f04c66);
+
+.btn.small {
+  padding: 6px 10px;
+  font-size: .85rem;
+}
+
+.btn.warn {
+  background: var(--warn);
   color: #1a0e0f;
 }
 
-/* ==============================
-   6) Flash mensajes
-   ============================== */
-.flash-container{ max-width:1024px; margin:0 auto 8px; padding:0 20px; }
-.flash{
-  padding: 10px 12px; margin:6px 0; border-radius: var(--radius-sm);
-  border: 1px solid var(--border); background: rgba(255,255,255,.05);
-}
-.flash.success{
-  border-color: rgba(87,242,135,.45);
-  background: linear-gradient(180deg, rgba(87,242,135,.20), rgba(87,242,135,.10));
-}
-.flash.error{
-  border-color: rgba(255,107,129,.45);
-  background: linear-gradient(180deg, rgba(255,107,129,.20), rgba(255,107,129,.10));
+.flash-container {
+  max-width: 1024px;
+  margin: 0 auto 8px;
+  padding: 0 20px;
 }
 
-/* ==============================
-   7) Barras de probabilidad (radar)
-   ============================== */
-.prediction{ font-size:1.28rem; }
-
-.bars{ display:grid; grid-template-columns:1fr; gap:12px; margin-top:10px; }
-.bar{ display:grid; grid-template-columns: 160px 1fr 90px; align-items:center; gap:10px; }
-
-.bar-track{
-  position: relative;
-  height: 16px; border-radius: 10px; overflow: hidden;
-  border: 1px solid var(--border);
-  background:
-    radial-gradient(8px 8px at 6% 50%, rgba(255,255,255,.05), transparent 40%),
-    radial-gradient(8px 8px at 26% 50%, rgba(255,255,255,.05), transparent 40%),
-    radial-gradient(8px 8px at 46% 50%, rgba(255,255,255,.05), transparent 40%),
-    radial-gradient(8px 8px at 66% 50%, rgba(255,255,255,.05), transparent 40%),
-    radial-gradient(8px 8px at 86% 50%, rgba(255,255,255,.05), transparent 40%),
-    #0b0f22;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+.flash {
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin: 6px 0;
 }
 
-.bar-fill{
-  height:100%;
-  background:
-    linear-gradient(90deg, var(--ok), var(--accent-2)),
-    repeating-linear-gradient( -45deg,
-      rgba(255,255,255,.22) 0 10px,
-      rgba(255,255,255,0) 10px 20px
-    );
-  background-blend-mode: screen;
-  box-shadow: 0 0 22px rgba(0,225,255,.22);
-  animation: scan 2.2s linear infinite;
-  transform-origin: left center;
-}
-@keyframes scan{
-  from{ background-position: 0 0, 0 0; }
-  to{   background-position: 0 0, 200px 0; }
+.flash.success {
+  background: rgba(83, 223, 131, .12);
+  border: 1px solid rgba(83, 223, 131, .4);
 }
 
-/* Reducir animaciones si el usuario lo prefiere */
-@media (prefers-reduced-motion: reduce){
-  .bar-fill{ animation:none; }
+.flash.error {
+  background: rgba(247, 118, 142, .12);
+  border: 1px solid rgba(247, 118, 142, .4);
 }
 
-/* ==============================
-   8) Tablas (Mis datos / Entradas)
-   ============================== */
-.kv{ width:100%; border-collapse: collapse; }
-.kv td, .kv th{ padding: 10px 12px; border-bottom: 1px solid #202642; }
-.kv th{
-  text-align:left; color: var(--subtle);
-  position: sticky; top: 0; background: rgba(10,14,30,.92);
-  backdrop-filter: blur(6px);
-}
-.kv tbody tr:hover td{ background: rgba(255,255,255,.02); }
-.kv tr:last-child td{ border-bottom: 0; }
-
-.table-wrap{ overflow:auto; border-radius: 12px; border: 1px solid var(--border); }
-
-/* ==============================
-   9) Layout “Experto” en 2 columnas
-   ============================== */
-.grid-2{ display:grid; grid-template-columns: 1fr 1fr; gap: var(--gap); }
-.card.inner{ margin-top: 12px; }
-
-@media (max-width: 900px){
-  .grid-2{ grid-template-columns: 1fr; }
-  #hp-rf, #hp-dt, #hp-lr { display: block !important; }
+.prediction {
+  font-size: 1.25rem;
 }
 
-/* ==============================
-   10) Accesibilidad
-   ============================== */
-:focus-visible{
-  outline: 3px solid rgba(0,225,255,.6);
-  outline-offset: 2px;
+.bars {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.bar {
+  display: grid;
+  grid-template-columns: 160px 1fr 90px;
+  align-items: center;
+  gap: 10px;
+}
+
+.bar-track {
+  height: 14px;
+  background: #0d1124;
   border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #2b355b;
 }
 
-/* ==============================
-   11) Pequeños toques
-   ============================== */
-.muted{ opacity: .96; color: var(--subtle); }
-
-/* Burbujas de polvo cósmico en el main */
-main::after{
-  content:"";
-  position: absolute; left:-60px; bottom:-60px; width: 360px; height: 360px; z-index:-1;
-  background:
-    radial-gradient(closest-side, rgba(0,225,255,.22), transparent 70%),
-    radial-gradient(closest-side, rgba(154,107,255,.18), transparent 72%);
-  filter: blur(1px);
-  border-radius:50%;
-  opacity:.55;
+.bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--ok), var(--accent));
 }
+
+.kv {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.kv td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #202642;
+}
+
+.kv tr:last-child td {
+  border-bottom: 0;
+}
+
+.muted {
+  opacity: .95;
+}
+.hud .ghost { opacity: .7; font-weight: 500; }

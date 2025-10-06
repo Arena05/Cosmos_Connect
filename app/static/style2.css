@@ -1,0 +1,186 @@
+/* =========================================
+   Starfield 6 capas | zoom hacia cámara
+   - Sin scroll
+   - Doble buffer (before/after) desfasado 50%
+   - Alta densidad sin huecos ni traslapes visibles
+   - Ajusta velocidades en :root
+   ========================================= */
+
+:root{
+  /* velocidades (↑ = más lento) */
+  --s1: 30s;  /* muy lejana   */
+  --s2: 26s;  /* lejana       */
+  --s3: 22s;  /* media        */
+  --s4: 19s;  /* media-cerca  */
+  --s5: 16s;  /* cercana      */
+  --s6: 14s;  /* muy cercana  */
+
+  --bg: 2,3,14;          /* fondo casi negro azulado */
+  --star: 255,255,255;   /* color base estrellas */
+}
+
+/* sin barras de scroll */
+html,body{height:100%; overflow:hidden;}
+
+.space-warp{
+  position:relative;
+  min-height:100%;
+  background: rgb(var(--bg));
+  isolation:isolate;
+}
+
+/* --- util: crea un set pseudo-aleatorio de gradientes (6x capas, 5 puntos por celda) --- */
+/* Para minimizar patrones visibles, variamos posiciones y brillo. */
+@layer starfield {
+  .space-warp::before,
+  .space-warp::after{
+    content:"";
+    position:fixed; inset:0;
+    pointer-events:none; z-index:-1;
+
+    /* 6 grupos x 5 gradientes = 30 “puntos semilla” por tile.
+       Cada grupo tiene su propio tamaño de tile: más chico = más repeticiones → más “lejos”. */
+    background-image:
+      /* CAPA 1 (muy lejana, tenue) */
+      radial-gradient(1px 1px at 7% 12%,   rgba(var(--star), .45) 99%, transparent 100%),
+      radial-gradient(1px 1px at 38% 33%,  rgba(var(--star), .40) 99%, transparent 100%),
+      radial-gradient(1px 1px at 61% 78%,  rgba(var(--star), .50) 99%, transparent 100%),
+      radial-gradient(1px 1px at 83% 52%,  rgba(var(--star), .42) 99%, transparent 100%),
+      radial-gradient(1px 1px at 19% 89%,  rgba(var(--star), .46) 99%, transparent 100%),
+
+      /* CAPA 2 (lejana) */
+      radial-gradient(1.1px 1.1px at 11% 17%, rgba(var(--star), .55) 99%, transparent 100%),
+      radial-gradient(1.1px 1.1px at 45% 23%, rgba(var(--star), .50) 99%, transparent 100%),
+      radial-gradient(1.1px 1.1px at 72% 67%, rgba(var(--star), .60) 99%, transparent 100%),
+      radial-gradient(1.1px 1.1px at 86% 29%, rgba(var(--star), .52) 99%, transparent 100%),
+      radial-gradient(1.1px 1.1px at 27% 76%, rgba(var(--star), .58) 99%, transparent 100%),
+
+      /* CAPA 3 (media) */
+      radial-gradient(1.3px 1.3px at 9% 22%,   rgba(var(--star), .68) 99%, transparent 100%),
+      radial-gradient(1.3px 1.3px at 35% 58%,  rgba(var(--star), .65) 99%, transparent 100%),
+      radial-gradient(1.3px 1.3px at 59% 15%,  rgba(var(--star), .72) 99%, transparent 100%),
+      radial-gradient(1.3px 1.3px at 81% 82%,  rgba(var(--star), .66) 99%, transparent 100%),
+      radial-gradient(1.3px 1.3px at 23% 41%,  rgba(var(--star), .70) 99%, transparent 100%),
+
+      /* CAPA 4 (media-cerca) */
+      radial-gradient(1.5px 1.5px at 14% 35%, rgba(var(--star), .78) 99%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 41% 14%, rgba(var(--star), .74) 99%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 68% 47%, rgba(var(--star), .82) 99%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 92% 71%, rgba(var(--star), .76) 99%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 29% 88%, rgba(var(--star), .80) 99%, transparent 100%),
+
+      /* CAPA 5 (cercana) */
+      radial-gradient(1.7px 1.7px at 18% 27%, rgba(var(--star), .90) 99%, transparent 100%),
+      radial-gradient(1.7px 1.7px at 52% 36%, rgba(var(--star), .88) 99%, transparent 100%),
+      radial-gradient(1.7px 1.7px at 74% 63%, rgba(var(--star), .92) 99%, transparent 100%),
+      radial-gradient(1.7px 1.7px at 88% 18%, rgba(var(--star), .86) 99%, transparent 100%),
+      radial-gradient(1.7px 1.7px at 34% 71%, rgba(var(--star), .90) 99%, transparent 100%),
+
+      /* CAPA 6 (muy cercana, pocas pero brillantes) */
+      radial-gradient(2px 2px at 21% 49%,  rgba(var(--star), .98) 99%, transparent 100%),
+      radial-gradient(2px 2px at 57% 19%,  rgba(var(--star), .96) 99%, transparent 100%),
+      radial-gradient(2px 2px at 79% 57%,  rgba(var(--star), .97) 99%, transparent 100%),
+      radial-gradient(2px 2px at 93% 86%,  rgba(var(--star), .95) 99%, transparent 100%),
+      radial-gradient(2px 2px at 39% 83%,  rgba(var(--star), .97) 99%, transparent 100%);
+
+    /* tamaño de “tile” por capa (más chico = más repetición) */
+    background-size:
+      170px 170px,170px 170px,170px 170px,170px 170px,170px 170px,   /* capa 1 */
+      220px 220px,220px 220px,220px 220px,220px 220px,220px 220px,   /* capa 2 */
+      290px 290px,290px 290px,290px 290px,290px 290px,290px 290px,   /* capa 3 */
+      380px 380px,380px 380px,380px 380px,380px 380px,380px 380px,   /* capa 4 */
+      520px 520px,520px 520px,520px 520px,520px 520px,520px 520px,   /* capa 5 */
+      680px 680px,680px 680px,680px 680px,680px 680px,680px 680px;   /* capa 6 */
+
+    background-position:
+      50% 50%,50% 50%,50% 50%,50% 50%,50% 50%,
+      50% 50%,50% 50%,50% 50%,50% 50%,50% 50%,
+      50% 50%,50% 50%,50% 50%,50% 50%,50% 50%,
+      50% 50%,50% 50%,50% 50%,50% 50%,50% 50%,
+      50% 50%,50% 50%,50% 50%,50% 50%,50% 50%,
+      50% 50%,50% 50%,50% 50%,50% 50%,50% 50%;
+
+    background-repeat: repeat;
+
+    /* Animación: cada gradiente del grupo usa su keyframe correspondiente */
+    animation:
+      warp1 var(--s1) linear infinite,
+      warp1 var(--s1) linear infinite,
+      warp1 var(--s1) linear infinite,
+      warp1 var(--s1) linear infinite,
+      warp1 var(--s1) linear infinite,
+
+      warp2 var(--s2) linear infinite,
+      warp2 var(--s2) linear infinite,
+      warp2 var(--s2) linear infinite,
+      warp2 var(--s2) linear infinite,
+      warp2 var(--s2) linear infinite,
+
+      warp3 var(--s3) linear infinite,
+      warp3 var(--s3) linear infinite,
+      warp3 var(--s3) linear infinite,
+      warp3 var(--s3) linear infinite,
+      warp3 var(--s3) linear infinite,
+
+      warp4 var(--s4) linear infinite,
+      warp4 var(--s4) linear infinite,
+      warp4 var(--s4) linear infinite,
+      warp4 var(--s4) linear infinite,
+      warp4 var(--s4) linear infinite,
+
+      warp5 var(--s5) linear infinite,
+      warp5 var(--s5) linear infinite,
+      warp5 var(--s5) linear infinite,
+      warp5 var(--s5) linear infinite,
+      warp5 var(--s5) linear infinite,
+
+      warp6 var(--s6) linear infinite,
+      warp6 var(--s6) linear infinite,
+      warp6 var(--s6) linear infinite,
+      warp6 var(--s6) linear infinite,
+      warp6 var(--s6) linear infinite;
+  }
+
+  /* desfase 50% del segundo buffer → loop sin saltos ni “huecos” */
+  .space-warp::after{
+    animation-delay:
+      calc(var(--s1)*-0.5),calc(var(--s1)*-0.5),calc(var(--s1)*-0.5),calc(var(--s1)*-0.5),calc(var(--s1)*-0.5),
+      calc(var(--s2)*-0.5),calc(var(--s2)*-0.5),calc(var(--s2)*-0.5),calc(var(--s2)*-0.5),calc(var(--s2)*-0.5),
+      calc(var(--s3)*-0.5),calc(var(--s3)*-0.5),calc(var(--s3)*-0.5),calc(var(--s3)*-0.5),calc(var(--s3)*-0.5),
+      calc(var(--s4)*-0.5),calc(var(--s4)*-0.5),calc(var(--s4)*-0.5),calc(var(--s4)*-0.5),calc(var(--s4)*-0.5),
+      calc(var(--s5)*-0.5),calc(var(--s5)*-0.5),calc(var(--s5)*-0.5),calc(var(--s5)*-0.5),calc(var(--s5)*-0.5),
+      calc(var(--s6)*-0.5),calc(var(--s6)*-0.5),calc(var(--s6)*-0.5),calc(var(--s6)*-0.5),calc(var(--s6)*-0.5);
+    opacity:.9999; /* previene banding */
+  }
+}
+
+/* --- Keyframes por capa: escalamos tile (zoom) y añadimos leve drift radial ---
+   Nota: el drift evita que el patrón “respire” simétrico y evita traslapes perceptibles.
+*/
+@keyframes warp1 {
+  0%   { background-size: 170px 170px; background-position: 50% 50%; }
+  100% { background-size: 1300px 1300px; background-position: 49% 51%; }
+}
+@keyframes warp2 {
+  0%   { background-size: 220px 220px; background-position: 50% 50%; }
+  100% { background-size: 1600px 1600px; background-position: 51% 49%; }
+}
+@keyframes warp3 {
+  0%   { background-size: 290px 290px; background-position: 50% 50%; }
+  100% { background-size: 1900px 1900px; background-position: 49% 49%; }
+}
+@keyframes warp4 {
+  0%   { background-size: 380px 380px; background-position: 50% 50%; }
+  100% { background-size: 2300px 2300px; background-position: 51% 51%; }
+}
+@keyframes warp5 {
+  0%   { background-size: 520px 520px; background-position: 50% 50%; }
+  100% { background-size: 2700px 2700px; background-position: 49% 50%; }
+}
+@keyframes warp6 {
+  0%   { background-size: 680px 680px; background-position: 50% 50%; }
+  100% { background-size: 3200px 3200px; background-position: 50% 49%; }
+}
+
+/* contenido por encima del fondo */
+.app-content{ position:relative; z-index:0; }

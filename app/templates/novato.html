@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
   <section class="card">
-  <h2>Enthusiast Mode</h2>
-  <p class="muted">Fixed model: <strong>Random Forest</strong> (n_estimators=1000, random_state=10).</p>
+    <h2>Beginner Mode</h2>
+    <p class="muted">Fixed model: <strong>Random Forest</strong> (n_estimators=1000, random_state=10).</p>
     <form action="{{ url_for('main.predict_novato') }}" method="post" class="grid-form">
       {% for key in features %}
       <div class="row">
@@ -10,25 +10,21 @@
         <input type="number" step="any" name="{{ key }}" id="{{ key }}" required placeholder="0.0">
       </div>
       {% endfor %}
-  <button type="submit" class="btn">Predict</button>
+      <button type="submit" class="btn warn">Predict</button>
     </form>
   </section>
 
-  <section class="card muted">
+  <section class="card">
     <h3>Model status</h3>
     {% if status.trained %}
       <p>Accuracy (NASA): <strong>{{ "%.2f"|format(status.accuracy*100) }}%</strong></p>
-      {% if status.precision_macro is defined %}
-        <p>Precision (macro): <strong>{{ "%.2f"|format((status.precision_macro or 0)*100) }}%</strong></p>
-      {% else %}
-        <p>Precision (macro): <strong>—</strong></p>
-      {% endif %}
+      <p><small>Artifacts: <code>instance/models/{{ status.user_id }}/{{ status.key }}</code></small></p>
     {% else %}
       <p>Not trained: {{ status.error }}</p>
     {% endif %}
   </section>
 
-  <section class="card muted">
+  <section class="card">
     <h3>Your data</h3>
     <form action="{{ url_for('main.clear_my_data') }}" method="post" onsubmit="return confirm('Delete all your samples?');">
       <input type="hidden" name="mode" value="novato">

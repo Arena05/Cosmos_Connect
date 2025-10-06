@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Load data · 3D{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>Enter data (original variables)</h1>
+  <form method="post" action="{{ url_for('viz3d.viz3d_form') }}">
+    <div style="display:grid;gap:12px;grid-template-columns:repeat(3,1fr)">
+      <div style="grid-column:span 3"><strong>Star</strong></div>
+      <div><label>hostname</label><input name="hostname" value="Host Star"></div>
+      <div><label>st_teff (K)</label><input name="st_teff" type="number" value="5800"></div>
+      <div><label>st_logg (cgs)</label><input name="st_logg" type="number" step="0.01" value="4.40"></div>
+      <div><label>st_rad (R☉)</label><input name="st_rad" type="number" step="0.01" value="1.00"></div>
+      <div><label>st_mass (M☉) (optional)</label><input name="st_mass" type="number" step="0.01" placeholder="1.00"></div>
+
+      <div style="grid-column:span 3"><strong>Planet</strong></div>
+      <div><label>pl_name</label><input name="pl_name" value="Candidate-1"></div>
+      <div><label>pl_orbper (days)</label><input name="pl_orbper" type="number" step="0.01" value="10.0"></div>
+      <div><label>pl_trandur (days, optional)</label><input name="pl_trandur" type="number" step="0.0001"></div>
+      <div><label>pl_trandurh (hours, optional)</label><input name="pl_trandurh" type="number" step="0.001"></div>
+      <div><label>pl_trandep (ppm or %)</label><input name="pl_trandep" type="number" step="0.01" value="500"></div>
+      <div><label>pl_rade (R⊕)</label><input name="pl_rade" type="number" step="0.01" value="1.2"></div>
+      <div><label>pl_insol (S⊕)</label><input name="pl_insol" type="number" step="0.01" value="1.0"></div>
+      <div><label>pl_eqt (K)</label><input name="pl_eqt" type="number" step="1" value="700"></div>
+
+      <div style="grid-column:span 3"><strong>AI Probabilities</strong></div>
+      <div><label>CONFIRMED</label><input name="p_confirmed" type="number" step="0.01" value="0.95"></div>
+      <div><label>CANDIDATE</label><input name="p_candidate" type="number" step="0.01" value="0.04"></div>
+      <div><label>FALSE_POSITIVE</label><input name="p_fp" type="number" step="0.01" value="0.01"></div>
+
+      <div style="grid-column:span 3;margin-top:8px;">
+        <button class="btn btn-primary" type="submit">Compute and show 3D button</button>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

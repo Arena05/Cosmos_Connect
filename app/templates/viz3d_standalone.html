@@ -1,0 +1,238 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Exoplanet 3D</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    html, body { margin:0; height:100%; background:#000; overflow:hidden; }
+    #viewer3d { position:fixed; inset:0; }
+
+    /* No HUD with words */
+    .hud { display: none !important; }
+
+    /* Minimal controls (no text) */
+    .ui {
+      position: fixed; right: 16px; bottom: 16px; z-index: 10;
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(0,0,0,.45); border-radius: 12px; padding: 8px 10px;
+      backdrop-filter: blur(3px);
+    }
+    .ui input[type="range"] { width: 160px; cursor: pointer; }
+    .icon-btn {
+      width: 30px; height: 30px; border-radius: 999px; border: none; cursor: pointer;
+      display: grid; place-items: center;
+      background: rgba(255,255,255,.12);
+    }
+    .icon-btn:hover { background: rgba(255,255,255,.2); }
+    .icon-btn svg { fill: #e2e8f0; width: 16px; height: 16px; }
+    .icon-btn .play-icon { display: none; }
+    .icon-btn.paused .play-icon { display: block; }
+    .icon-btn.paused .pause-icon { display: none; }
+  </style>
+</head>
+<body>
+  <div id="viewer3d"></div>
+
+  <!-- Controls without text -->
+  <div class="ui">
+    <button id="toggleBtn" class="icon-btn" aria-label="Play/Pause animation">
+      <!-- pause -->
+      <svg class="pause-icon" viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>
+      <!-- play -->
+      <svg class="play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    </button>
+    <!-- IMPORTANT: max=1.00 => 100% of physical speed -->
+    <input id="speedRange" type="range" min="0" max="1" step="0.01" value="0.30">
+  </div>
+
+  <!-- Payload from Flask -->
+  <script id="system-data" type="application/json">
+    {{ system_json | tojson }}
+  </script>
+
+  <!-- THREE r128 (no modules) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/examples/js/controls/OrbitControls.min.js"></script>
+
+  <script>
+    // -------- Data --------
+    let DATA = {};
+    try { DATA = JSON.parse(document.getElementById('system-data').textContent || '{}'); }
+    catch(e){ console.error('Invalid JSON', e); DATA = {}; }
+
+    if (!DATA.star && !DATA.planet) {
+      DATA = {
+        pred_label: "Confirmed",
+        score: {"CONFIRMED": 1.0},
+        star:   { st_rad: 1.0, st_teff: 5800 },
+        planet: { pl_orbper: 10, pl_rade: 1.2, pl_eqt: 300, eccentricity: 0.1, incl_deg: 15 },
+        derived:{ semi_major_au: 0.1 }
+      };
+    }
+
+    const STAR   = DATA.star   || {};
+    const PLANET = DATA.planet || {};
+    const DER    = DATA.derived|| {};
+
+    const num    = (x,d)=>{ const v=Number(x); return (isFinite(v)&&v>0)?v:d; };
+    const numAny = (x,d)=>{ const v=Number(x); return isFinite(v)?v:d; };
+    const colorFromTempK=(T)=> T==null?0x7aa2f7:(T<2500?0xff7b6b:T<4000?0xffbb88:T<6000?0xffffff:0xaad0ff);
+
+    // Prefer long names; fallback to short ones
+    const st_rad    = num( (STAR.stellar_radius     ?? STAR.st_rad),        1.0 );
+    const st_teff   = num( (STAR.stellar_teff       ?? STAR.st_teff),       5800 );
+    const pl_orbper = num( (PLANET.period           ?? PLANET.pl_orbper),   10.0 ); // days
+    const pl_rade   = num( (PLANET.planet_radius    ?? PLANET.pl_rade),     1.2 );  // R⊕
+    const pl_eqt    = (PLANET.equilibrium_temp ?? PLANET.pl_eqt);
+    const a_au      = (DER && DER.semi_major_au!=null)
+                        ? num(DER.semi_major_au, 0.1)
+                        : Math.cbrt(Math.pow(pl_orbper/365.25,2));
+
+    const ecc       = Math.max(0, Math.min(0.95, numAny(PLANET.eccentricity ?? PLANET.ecc, 0)));
+    const inclD     = numAny(PLANET.incl_deg ?? PLANET.inclination, 0);
+    const omegaD    = numAny(PLANET.arg_peri ?? PLANET.omega_deg, 0);
+    const OmegaD    = numAny(PLANET.long_asc ?? PLANET.Omega_deg, 0);
+
+    // -------- Scene --------
+    const container = document.getElementById('viewer3d');
+    const FOV = 35; // far view
+    const camera = new THREE.PerspectiveCamera(FOV, 1, 0.1, 50000);
+    const scene  = new THREE.Scene();
+    const renderer = new THREE.WebGLRenderer({ antialias:true });
+    renderer.setPixelRatio(window.devicePixelRatio||1);
+    container.appendChild(renderer.domElement);
+
+    function resize(){
+      const w = window.innerWidth, h = window.innerHeight;
+      camera.aspect = w / h; camera.updateProjectionMatrix();
+      renderer.setSize(w, h, false);
+    }
+    window.addEventListener('resize', resize); resize();
+
+    // Controls
+    let controls = null;
+    if (THREE.OrbitControls){
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.enablePan = false;
+      controls.minDistance = 20;
+      controls.maxDistance = 12000;
+      controls.maxPolarAngle = Math.PI * 0.98;
+      controls.target.set(0,0,0);
+      controls.update();
+    }
+
+    // Visual parameters
+    const SCALE_AU         = 50;
+    const ORBIT_VIS_MULT   = 3.0;   // visually larger orbit
+    const PLANET_VIS_SCALE = 2.0;   // larger planet
+
+    const a_px   = Math.max(5, a_au * SCALE_AU);
+    const a_disp = a_px * ORBIT_VIS_MULT;
+
+    function setFarView(){
+      camera.position.set(0, 1.8*a_disp + 300, 3.6*a_disp + 500);
+      camera.lookAt(0,0,0);
+      if (controls){ controls.target.set(0,0,0); controls.update(); }
+    }
+    setFarView();
+
+    // -------- Starfield background --------
+    function makeStarField(count, radius, size, opacity){
+      const g = new THREE.BufferGeometry();
+      const pos = new Float32Array(count*3);
+      for (let i=0;i<count;i++){
+        const u=Math.random(), v=Math.random();
+        const theta=2*Math.PI*u, phi=Math.acos(2*v-1);
+        const r = radius*(0.85+0.15*Math.random());
+        pos[3*i]   = r*Math.sin(phi)*Math.cos(theta);
+        pos[3*i+1] = r*Math.cos(phi);
+        pos[3*i+2] = r*Math.sin(phi)*Math.sin(theta);
+      }
+      g.setAttribute('position', new THREE.BufferAttribute(pos,3));
+      const m = new THREE.PointsMaterial({ size, sizeAttenuation:true, color:0xffffff, opacity, transparent:true, depthWrite:false });
+      return new THREE.Points(g, m);
+    }
+    const skyR = Math.max(4000, a_disp*12);
+    scene.add(makeStarField(2000, skyR, 2.0, 0.9));
+    scene.add(makeStarField(4000, skyR*1.2, 1.2, 0.6));
+
+    // -------- Elliptical orbit --------
+    const ROT = new THREE.Matrix4()
+      .multiply(new THREE.Matrix4().makeRotationZ(THREE.MathUtils.degToRad(OmegaD)))
+      .multiply(new THREE.Matrix4().makeRotationX(THREE.MathUtils.degToRad(inclD)))
+      .multiply(new THREE.Matrix4().makeRotationZ(THREE.MathUtils.degToRad(omegaD)));
+
+    function keplerE(M, e){
+      let E = M;
+      for (let i=0;i<8;i++){ const f=E-e*Math.sin(E)-M, fp=1-e*Math.cos(E); E -= f/fp; }
+      return E;
+    }
+    function posAtMeanAnomaly(M){
+      const E  = keplerE(M, ecc);
+      const cosE = Math.cos(E), sinE = Math.sin(E);
+      const r = a_disp * (1 - ecc*cosE); // visually enlarged radius
+      const nu = Math.atan2(Math.sqrt(1-ecc*ecc)*sinE, cosE - ecc);
+      return new THREE.Vector3(r*Math.cos(nu), 0, r*Math.sin(nu)).applyMatrix4(ROT);
+    }
+
+    // Orbit line
+    const orbitPts = [];
+    for (let i = 0; i <= 512; i++){
+      const M = (i / 512) * Math.PI * 2;
+      orbitPts.push(posAtMeanAnomaly(M));
+    }
+    scene.add(new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints(orbitPts),
+      new THREE.LineBasicMaterial({ transparent:true, opacity:0.85 })
+    ));
+
+    // -------- Exoplanet --------
+    const SCALE_R_EARTH = 0.8 * PLANET_VIS_SCALE;
+    let planetR = Math.max(0.25, pl_rade * SCALE_R_EARTH);
+    if (!isFinite(planetR) || planetR <= 0) planetR = 0.6;
+
+    const planet = new THREE.Mesh(
+      new THREE.SphereGeometry(planetR, 64, 64),
+      new THREE.MeshBasicMaterial({ color: colorFromTempK(pl_eqt) }) // self-lit
+    );
+    scene.add(planet);
+
+    // -------- Dynamics (capped at 100% physical speed) --------
+    const n = (2*Math.PI) / (pl_orbper || 10.0); // rad/day (physical)
+    let M = 0;             // mean anomaly
+    let paused = false;    // animation active
+    let timeScale = 0.30;  // 0..1 (1 = physical speed)
+
+    const speedRange = document.getElementById('speedRange');
+    const toggleBtn  = document.getElementById('toggleBtn');
+
+    speedRange.addEventListener('input', ()=>{
+      const v = parseFloat(speedRange.value);
+      timeScale = Math.min(1, Math.max(0, v)); // clamp 0..1 for safety
+    });
+    toggleBtn.addEventListener('click', ()=>{
+      paused = !paused;
+      toggleBtn.classList.toggle('paused', paused); // toggle icon
+    });
+    toggleBtn.classList.toggle('paused', paused);
+
+    // -------- Animation --------
+    let last = performance.now();
+    function animate(){
+      requestAnimationFrame(animate);
+      const now = performance.now(), dt = (now - last)/1000; last = now;
+
+      if (!paused){
+        M = (M + n * dt * timeScale) % (Math.PI*2); // never exceeds physical speed
+      }
+      planet.position.copy(posAtMeanAnomaly(M));
+
+      if (controls) controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+  </script>
+</body>
+</html>

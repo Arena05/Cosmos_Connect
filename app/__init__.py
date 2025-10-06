@@ -14,7 +14,8 @@ def create_app():
 
     db.init_app(app)
     login_manager.init_app(app)
-
+    from .viz3d import bp as viz3d_bp
+    app.register_blueprint(viz3d_bp)   # expone /viz3d/form y /viz3d
     from .routes import bp as main_bp
     from .auth import bp as auth_bp
     app.register_blueprint(main_bp)
